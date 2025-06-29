@@ -1,6 +1,6 @@
 package com.github.andre10dias.spring_rest_api.controller;
 
-import com.github.andre10dias.spring_rest_api.exception.UnsuportedMathOperationException;
+import com.github.andre10dias.spring_rest_api.exception.ResourceNotFoundException;
 import com.github.andre10dias.spring_rest_api.math.SimpleMath;
 import com.github.andre10dias.spring_rest_api.request.converters.NumberConverter;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class MathController {
             @PathVariable("numberOne") String a,
             @PathVariable("numberTwo") String b) {
         if (!NumberConverter.isNumeric(a) || !NumberConverter.isNumeric(b)) {
-            throw new UnsuportedMathOperationException("Please, set a numeric value");
+            throw new ResourceNotFoundException("Please, set a numeric value");
         }
 
         Double num1 = NumberConverter.convertToDouble(a);
@@ -33,7 +33,7 @@ public class MathController {
             @PathVariable("numberOne") String a,
             @PathVariable("numberTwo") String b) {
         if (!NumberConverter.isNumeric(a) || !NumberConverter.isNumeric(b)) {
-            throw new UnsuportedMathOperationException("Please, set a numeric value");
+            throw new ResourceNotFoundException("Please, set a numeric value");
         }
 
         Double num1 = NumberConverter.convertToDouble(a);
@@ -46,7 +46,7 @@ public class MathController {
             @PathVariable("numberOne") String a,
             @PathVariable("numberTwo") String b) {
         if (!NumberConverter.isNumeric(a) || !NumberConverter.isNumeric(b)) {
-            throw new UnsuportedMathOperationException("Please, set a numeric value");
+            throw new ResourceNotFoundException("Please, set a numeric value");
         }
 
         Double num1 = NumberConverter.convertToDouble(a);
@@ -59,7 +59,7 @@ public class MathController {
             @PathVariable("numberOne") String a,
             @PathVariable("numberTwo") String b) {
         if (!NumberConverter.isNumeric(a) || !NumberConverter.isNumeric(b)) {
-            throw new UnsuportedMathOperationException("Please, set a numeric value");
+            throw new ResourceNotFoundException("Please, set a numeric value");
         }
 
         Double num1 = NumberConverter.convertToDouble(a);
@@ -72,7 +72,7 @@ public class MathController {
             @PathVariable("numberOne") String a,
             @PathVariable("numberTwo") String b) {
         if (!NumberConverter.isNumeric(a) || !NumberConverter.isNumeric(b)) {
-            throw new UnsuportedMathOperationException("Please, set a numeric value");
+            throw new ResourceNotFoundException("Please, set a numeric value");
         }
 
         Double num1 = NumberConverter.convertToDouble(a);
@@ -84,7 +84,7 @@ public class MathController {
     public Double squareroot(
             @PathVariable("number") String a) {
         if (!NumberConverter.isNumeric(a)) {
-            throw new UnsuportedMathOperationException("Please, set a numeric value");
+            throw new ResourceNotFoundException("Please, set a numeric value");
         }
 
         Double num1 = NumberConverter.convertToDouble(a);

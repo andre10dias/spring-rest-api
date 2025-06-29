@@ -2,7 +2,7 @@ spring:
   application:
     name: spring-rest-api
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/spring-rest-api?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root
     password: root
@@ -11,3 +11,4 @@ spring:
     hibernate:
       dialect: org.hibernate.dialect.MySQL5Dialect
       ddl-auto: update
+    open-in-view: false

@@ -1,6 +1,6 @@
 package com.github.andre10dias.spring_rest_api.request.converters;
 
-import com.github.andre10dias.spring_rest_api.exception.UnsuportedMathOperationException;
+import com.github.andre10dias.spring_rest_api.exception.ResourceNotFoundException;
 
 public class NumberConverter {
 
@@ -9,12 +9,12 @@ public class NumberConverter {
             return Double.parseDouble(strNum);
         }
 
-        throw new UnsuportedMathOperationException("Please, set a numeric value.");
+        throw new ResourceNotFoundException("Please, set a numeric value.");
     }
 
     public static boolean isNumeric(String strNum) {
         if (strNum == null || strNum.isEmpty()) {
-            throw new UnsuportedMathOperationException("String cannot be null or empty.");
+            throw new ResourceNotFoundException("String cannot be null or empty.");
         }
         String num = strNum.replace(",", ".");
         return num.matches("[-+]?\\d*\\.?\\d+");

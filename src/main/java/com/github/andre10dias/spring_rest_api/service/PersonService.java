@@ -1,9 +1,10 @@
 package com.github.andre10dias.spring_rest_api.service;
 
 import com.github.andre10dias.spring_rest_api.model.Person;
+import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
@@ -11,41 +12,48 @@ import java.util.logging.Logger;
 @Service
 public class PersonService {
 
+    @Autowired
+    private PersonRepository personRepository;
+
     private final AtomicLong counter = new AtomicLong();
     private Logger logger = Logger.getLogger(PersonService.class.getName());
 
     public List<Person> findAll() {
         logger.info("findAll");
-        return List.of(
-                new Person(counter.incrementAndGet(), "Leandro",
-                "Dias", "Rua 1", "M"),
-                new Person(counter.incrementAndGet(), "Pedro",
-                        "Santos", "Rua A", "M"),
-                new Person(counter.incrementAndGet(), "Maria",
-                        "Silva", "Rua B3", "F")
-        );
+        return personRepository.findAll();
     }
 
 
-    public Person findById(String id) {
+    public Person findById(Long id) {
         logger.info("findById: " + id);
-        return new Person(counter.incrementAndGet(), "Leandro",
-                "Dias", "Rua 1", "M");
+        return personRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Person not found")
+        );
     }
 
     public Person create(Person person) {
         logger.info("create: " + person);
-        person.setId(counter.incrementAndGet());
-        return person;
+        return personRepository.save(person);
     }
 
     public Person update(Person person) {
         logger.info("update: " + person);
-        return person;
+        Person personToUpdate = personRepository.findById(person.getId()).orElseThrow(
+                () -> new RuntimeException("Person not found")
+        );
+        personToUpdate.setFirstName(person.getFirstName());
+        personToUpdate.setLastName(person.getLastName());
+        personToUpdate.setAddress(person.getAddress());
+        personToUpdate.setGender(person.getGender());
+        return personRepository.save(person);
     }
 
-    public void delete(String id) {
+    public void delete(Long id) {
         logger.info("delete: " + id);
+        Person personToDelete = personRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Person not found")
+        );
+        personRepository.delete(personToDelete);
     }
 
 }
