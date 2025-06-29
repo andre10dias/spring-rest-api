@@ -1,5 +1,6 @@
 package com.github.andre10dias.spring_rest_api.controller;
 
+import com.github.andre10dias.spring_rest_api.data.dto.PersonDTO;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,22 +18,22 @@ public class PersonController {
     private PersonService personService;
 
     @GetMapping
-    public List<Person> findAll() {
+    public List<PersonDTO> findAll() {
         return personService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Person findById(@PathVariable("id") Long id) {
+    public PersonDTO findById(@PathVariable("id") Long id) {
         return personService.findById(id);
     }
 
     @PostMapping
-    public Person create(@RequestBody Person person) {
+    public PersonDTO create(@RequestBody PersonDTO person) {
         return personService.create(person);
     }
 
     @PutMapping
-    public Person update(@RequestBody Person person) {
+    public PersonDTO update(@RequestBody PersonDTO person) {
         return personService.update(person);
     }
 
