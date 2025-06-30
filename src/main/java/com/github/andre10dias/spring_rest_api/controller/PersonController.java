@@ -19,7 +19,9 @@ public class PersonController {
 
     @GetMapping(produces = {
             MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
     })
     public List<PersonDTO> findAll() {
         return personService.findAll();
@@ -27,7 +29,8 @@ public class PersonController {
 
     @GetMapping(value = "/{id}", produces = {
             MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
     })
     public PersonDTO findById(@PathVariable("id") Long id) {
         return personService.findById(id);
@@ -35,7 +38,8 @@ public class PersonController {
 
     @PostMapping(produces = {
             MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
     })
     public PersonDTO create(@RequestBody PersonDTO person) {
         return personService.create(person);
@@ -43,7 +47,8 @@ public class PersonController {
 
     @PutMapping(produces = {
             MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
     })
     public PersonDTO update(@RequestBody PersonDTO person) {
         return personService.update(person);
@@ -51,7 +56,8 @@ public class PersonController {
 
     @DeleteMapping(value = "/{id}", produces = {
             MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
     })
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         personService.delete(id);
@@ -60,7 +66,8 @@ public class PersonController {
 
     @PostMapping(value = "/v2", produces = {
             MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
     })
     public PersonDTOv2 create(@RequestBody PersonDTOv2 person) {
         return personService.createV2(person);

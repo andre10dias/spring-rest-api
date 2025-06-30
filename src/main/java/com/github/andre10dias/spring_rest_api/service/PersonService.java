@@ -1,5 +1,6 @@
 package com.github.andre10dias.spring_rest_api.service;
 
+import com.github.andre10dias.spring_rest_api.controller.PersonController;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.model.Person;
@@ -14,6 +15,8 @@ import java.util.logging.Logger;
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseListObject;
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseObject;
 import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.toPerson;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class PersonService {
@@ -26,8 +29,9 @@ public class PersonService {
 
     public List<PersonDTO> findAll() {
         logger.info("findAll");
-        List<Person> person = personRepository.findAll();
-        return parseListObject(person, PersonDTO.class);
+        List<PersonDTO> dtos = parseListObject(personRepository.findAll(), PersonDTO.class);
+        dtos.forEach(PersonService::hateoasLinkAdd);
+        return dtos;
     }
 
     public PersonDTO findById(Long id) {
@@ -35,13 +39,18 @@ public class PersonService {
         var person = personRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Person not found")
         );
-        return parseObject(person, PersonDTO.class);
+        var dto = parseObject(person, PersonDTO.class);
+        hateoasLinkAdd(dto);
+        return dto;
     }
+
 
     public PersonDTO create(PersonDTO personDto) {
         logger.info("create: " + personDto);
         var personToSave = parseObject(personDto, Person.class);
-        return parseObject(personRepository.save(personToSave), PersonDTO.class);
+        var dto = parseObject(personRepository.save(personToSave), PersonDTO.class);
+        hateoasLinkAdd(dto);
+        return dto;
     }
 
     public PersonDTO update(PersonDTO personDto) {
@@ -53,7 +62,9 @@ public class PersonService {
         personToUpdate.setLastName(personDto.getLastName());
         personToUpdate.setAddress(personDto.getAddress());
         personToUpdate.setGender(personDto.getGender());
-        return parseObject(personRepository.save(personToUpdate), PersonDTO.class);
+        var dto = parseObject(personRepository.save(personToUpdate), PersonDTO.class);
+        hateoasLinkAdd(dto);
+        return dto;
     }
 
     public void delete(Long id) {
@@ -69,6 +80,14 @@ public class PersonService {
         var personToSave = toPerson(personDto);
         personRepository.save(personToSave);
         return personDto;
+    }
+
+    private static void hateoasLinkAdd(PersonDTO dto) {
+        dto.add(linkTo(methodOn(PersonController.class).findById(dto.getId())).withSelfRel().withType("GET"));
+        dto.add(linkTo(methodOn(PersonController.class).findAll()).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(PersonController.class).create(dto)).withRel("create").withType("POST"));
+        dto.add(linkTo(methodOn(PersonController.class).update(dto)).withRel("update").withType("PUT"));
+        dto.add(linkTo(methodOn(PersonController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
     }
 
 }

@@ -1,2 +1,14 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+
+
+# warning: in the working copy of 'pom.xml', LF will be replaced by CRLF the next time Git touches it
+# Esse não é um erro, apenas um aviso informando que, em sistemas Windows, o Git vai converter
+# LF (Line Feed - usado no Linux/macOS) em CRLF (Carriage Return + Line Feed - padrão do Windows).
+# Para evitar esse aviso no futuro, adicione um .gitattributes na raiz do projeto:
+# .gitattributes
+
+* text=auto
+
+# Ou desative esse comportamento no gitbash com:
+# git config core.autocrlf false

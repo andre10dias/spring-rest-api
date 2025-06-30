@@ -2,7 +2,9 @@ package com.github.andre10dias.spring_rest_api.data.dto.v1;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 /*
  * ⚠️ O Dozer não suporta record diretamente porque records não têm construtor default e são imutáveis.
@@ -12,10 +14,11 @@ import lombok.NoArgsConstructor;
  * 🔁 Usar um mapper alternativo como MapStruct (mais moderno, mais performático e compatível com record)
  * */
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class PersonDTO {
+public class PersonDTO extends RepresentationModel<PersonDTO> {
     Long id;
     String firstName;
     String lastName;

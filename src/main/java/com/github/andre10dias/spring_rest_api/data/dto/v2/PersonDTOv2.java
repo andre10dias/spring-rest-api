@@ -1,8 +1,11 @@
 package com.github.andre10dias.spring_rest_api.data.dto.v2;
 
+import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
 
@@ -14,10 +17,11 @@ import java.time.LocalDate;
  * 🔁 Usar um mapper alternativo como MapStruct (mais moderno, mais performático e compatível com record)
  * */
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class PersonDTOv2 {
+public class PersonDTOv2 extends RepresentationModel<PersonDTO> {
     Long id;
     String firstName;
     String lastName;
