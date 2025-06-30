@@ -79,6 +79,7 @@ public class PersonService {
         logger.info("create: " + personDto);
         var personToSave = toPerson(personDto);
         personRepository.save(personToSave);
+        personDto.add(linkTo(methodOn(PersonController.class).create(personDto)).withRel("create").withType("POST"));
         return personDto;
     }
 
