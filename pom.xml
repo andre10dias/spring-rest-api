@@ -30,6 +30,7 @@
 		<java.version>21</java.version>
 		<dozer.version>7.0.0</dozer.version>
 		<flayway.mysql.version>11.9.2</flayway.mysql.version>
+		<jackson.xml.version>2.19.1</jackson.xml.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -58,6 +59,11 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
 			<version>${flayway.mysql.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>${jackson.xml.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
