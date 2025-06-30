@@ -1,6 +1,7 @@
 package com.github.andre10dias.spring_rest_api.mapper;
 
-import com.github.andre10dias.spring_rest_api.data.dto.PersonDTO;
+import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
+import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.mapper.mocks.MockPerson;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseListObject;
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseObject;
+import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.toPersonDTOv2List;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,8 +40,9 @@ public class ObjectMapperTests {
 
     @Test
     public void parseEntityListToDTOListTest() {
-        List<PersonDTO> outputList = parseListObject(inputObject.mockEntityList(), PersonDTO.class);
-        PersonDTO outputZero = outputList.getFirst();
+//        List<PersonDTO> outputList = parseListObject(inputObject.mockEntityList(), PersonDTO.class);
+        List<PersonDTOv2> outputList = toPersonDTOv2List(inputObject.mockEntityList());
+        PersonDTOv2 outputZero = outputList.getFirst();
 
         assertEquals(0L, outputZero.getId());
         assertEquals("First Name Test0", outputZero.getFirstName());
@@ -47,7 +50,7 @@ public class ObjectMapperTests {
         assertEquals("Address Test0", outputZero.getAddress());
         assertEquals("Male", outputZero.getGender());
 
-        PersonDTO outputSeven = outputList.get(7);
+        PersonDTOv2 outputSeven = outputList.get(7);
 
         assertEquals(7L, outputSeven.getId());
         assertEquals("First Name Test7", outputSeven.getFirstName());
@@ -55,7 +58,7 @@ public class ObjectMapperTests {
         assertEquals("Address Test7", outputSeven.getAddress());
         assertEquals("Female", outputSeven.getGender());
 
-        PersonDTO outputTwelve = outputList.get(12);
+        PersonDTOv2 outputTwelve = outputList.get(12);
 
         assertEquals(12L, outputTwelve.getId());
         assertEquals("First Name Test12", outputTwelve.getFirstName());

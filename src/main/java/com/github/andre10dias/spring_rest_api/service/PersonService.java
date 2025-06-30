@@ -1,19 +1,19 @@
 package com.github.andre10dias.spring_rest_api.service;
 
-import com.github.andre10dias.spring_rest_api.data.dto.PersonDTO;
-import com.github.andre10dias.spring_rest_api.mapper.ObjectMapper;
+import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
+import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseListObject;
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseObject;
+import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.toPerson;
 
 @Service
 public class PersonService {
@@ -62,6 +62,13 @@ public class PersonService {
                 () -> new RuntimeException("Person not found")
         );
         personRepository.delete(personToDelete);
+    }
+
+    public PersonDTOv2 createV2(PersonDTOv2 personDto) {
+        logger.info("create: " + personDto);
+        var personToSave = toPerson(personDto);
+        personRepository.save(personToSave);
+        return personDto;
     }
 
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,5 +34,7 @@ public class Person implements Serializable {
 
     @Column(nullable = false, length = 6)
     private String gender;
+
+    private LocalDate birthday;
 
 }

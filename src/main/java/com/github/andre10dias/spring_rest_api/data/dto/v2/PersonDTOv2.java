@@ -1,8 +1,10 @@
-package com.github.andre10dias.spring_rest_api.data.dto;
+package com.github.andre10dias.spring_rest_api.data.dto.v2;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 /*
  * ⚠️ O Dozer não suporta record diretamente porque records não têm construtor default e são imutáveis.
@@ -15,10 +17,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class PersonDTO {
+public class PersonDTOv2 {
     Long id;
     String firstName;
     String lastName;
     String address;
     String gender;
+    LocalDate birthday;
 }
