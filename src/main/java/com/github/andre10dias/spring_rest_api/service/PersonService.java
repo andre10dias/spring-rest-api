@@ -3,6 +3,7 @@ package com.github.andre10dias.spring_rest_api.service;
 import com.github.andre10dias.spring_rest_api.controller.PersonController;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
+import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,10 @@ public class PersonService {
 
     public PersonDTO create(PersonDTO personDto) {
         logger.info("create: " + personDto);
+        if (personDto == null) {
+            throw new RequiredObjectIsNullException();
+        }
+
         var personToSave = parseObject(personDto, Person.class);
         var dto = parseObject(personRepository.save(personToSave), PersonDTO.class);
         hateoasLinkAdd(dto);
@@ -55,6 +60,10 @@ public class PersonService {
 
     public PersonDTO update(PersonDTO personDto) {
         logger.info("update: " + personDto);
+        if (personDto == null) {
+            throw new RequiredObjectIsNullException();
+        }
+
         var personToUpdate = personRepository.findById(personDto.getId()).orElseThrow(
                 () -> new RuntimeException("Person not found")
         );

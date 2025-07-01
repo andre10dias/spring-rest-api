@@ -2,6 +2,7 @@ package com.github.andre10dias.spring_rest_api.service;
 
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
+import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
 import com.github.andre10dias.spring_rest_api.mapper.mocks.MockPerson;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
@@ -41,17 +42,14 @@ class PersonServiceTest {
 
     @Test
     void findAll() {
-        List<Person> personList = List.of(
-                input.mockEntity(1),
-                input.mockEntity(2)
-        );
+        List<Person> personList = input.mockEntityList();
 
         when(repository.findAll()).thenReturn(personList);
 
         List<PersonDTO> result = service.findAll();
 
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(14, result.size());
 
         for (PersonDTO dto : result) {
             assertNotNull(dto.getId());
@@ -194,5 +192,26 @@ class PersonServiceTest {
 
         verify(repository).save(any(Person.class));
     }
+
+    @Test
+    void testCreateWithNullPerson() {
+        RequiredObjectIsNullException exception = assertThrows(
+                RequiredObjectIsNullException.class,
+                () -> service.create(null)
+        );
+
+        assertEquals("It is not allowed to persist a null object!", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateWithNullPerson() {
+        RequiredObjectIsNullException exception = assertThrows(
+                RequiredObjectIsNullException.class,
+                () -> service.update(null)
+        );
+
+        assertEquals("It is not allowed to persist a null object!", exception.getMessage());
+    }
+
 
 }
