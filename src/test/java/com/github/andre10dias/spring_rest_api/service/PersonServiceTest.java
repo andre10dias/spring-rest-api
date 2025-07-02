@@ -58,7 +58,7 @@ class PersonServiceTest {
             boolean hasSelfLink = dto.getLinks().stream()
                     .anyMatch(link ->
                             "self".equals(link.getRel().value())
-                                    && link.getHref().endsWith("/people/" + dto.getId())
+                                    && link.getHref().endsWith("/api/people/v1/" + dto.getId())
                                     && "GET".equals(link.getType())
                     );
 
@@ -84,11 +84,11 @@ class PersonServiceTest {
         boolean hasExpectedLink = result.getLinks().stream()
                 .anyMatch(link ->
                         "self".equals(link.getRel().value())
-                                && link.getHref().endsWith("/people/1")
+                                && link.getHref().endsWith("/api/people/v1/1")
                                 && "GET".equals(link.getType())
                 );
 
-        assertTrue(hasExpectedLink, "Link 'self' com href '/people/1' e tipo 'GET' não encontrado");
+        assertTrue(hasExpectedLink, "Link 'self' com href '/api/people/v1/1' e tipo 'GET' não encontrado");
     }
 
     @Test
@@ -113,11 +113,11 @@ class PersonServiceTest {
         boolean hasExpectedLink = result.getLinks().stream()
                 .anyMatch(link ->
                         "self".equals(link.getRel().value())
-                                && link.getHref().endsWith("/people/" + result.getId())
+                                && link.getHref().endsWith("/api/people/v1/" + result.getId())
                                 && "GET".equals(link.getType())
                 );
 
-        assertTrue(hasExpectedLink, "Link 'self' com href '/people' e tipo 'POST' não encontrado");
+        assertTrue(hasExpectedLink, "Link 'self' com href '/api/people/v1' e tipo 'POST' não encontrado");
     }
 
     @Test
@@ -139,11 +139,11 @@ class PersonServiceTest {
         boolean hasExpectedLink = result.getLinks().stream()
                 .anyMatch(link ->
                         "update".equals(link.getRel().value())
-                                && link.getHref().endsWith("/people")
+                                && link.getHref().endsWith("/api/people/v1")
                                 && "PUT".equals(link.getType())
                 );
 
-        assertTrue(hasExpectedLink, "Link 'self' com href '/people' e tipo 'PUT' não encontrado");
+        assertTrue(hasExpectedLink, "Link 'self' com href '/api/people/v1' e tipo 'PUT' não encontrado");
     }
 
     @Test
@@ -184,11 +184,11 @@ class PersonServiceTest {
         boolean hasCreateLink = result.getLinks().stream()
                 .anyMatch(link ->
                         "create".equals(link.getRel().value())
-                                && link.getHref().endsWith("/people/v2")
+                                && link.getHref().endsWith("/api/people/v1/v2")
                                 && "POST".equals(link.getType())
                 );
 
-        assertTrue(hasCreateLink, "Link 'create' com href '/people/v2' e tipo 'POST' não encontrado");
+        assertTrue(hasCreateLink, "Link 'create' com href '/api/people/v1/v2' e tipo 'POST' não encontrado");
 
         verify(repository).save(any(Person.class));
     }
