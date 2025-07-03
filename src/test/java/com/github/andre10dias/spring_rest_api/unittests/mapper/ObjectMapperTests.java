@@ -16,17 +16,17 @@ import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ObjectMapperTests {
+class ObjectMapperTests {
     MockPerson inputObject;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         inputObject = new MockPerson();
     }
 
     @Test
     @DisplayName("Deve converter corretamente uma entidade Person em DTO")
-    public void parseEntityToDTOTest() {
+    void parseEntityToDTOTest() {
         var dto = parseObject(inputObject.mockEntity(), PersonDTO.class);
 
         assertAll("PersonDTO",
@@ -34,13 +34,13 @@ public class ObjectMapperTests {
                 () -> assertEquals("First Name Test0", dto.getFirstName()),
                 () -> assertEquals("Last Name Test0", dto.getLastName()),
                 () -> assertEquals("Address Test0", dto.getAddress()),
-                () -> assertEquals("Male", dto.getGender())
+                () -> assertEquals("Male", dto.getGender()),
+                () -> assertEquals(true, dto.isEnabled())
         );
     }
 
     @Test
-    public void parseEntityListToDTOListTest() {
-//        List<PersonDTO> outputList = parseListObject(inputObject.mockEntityList(), PersonDTO.class);
+    void parseEntityListToDTOListTest() {
         List<PersonDTOv2> outputList = toPersonDTOv2List(inputObject.mockEntityList());
         PersonDTOv2 outputZero = outputList.getFirst();
 
@@ -57,7 +57,6 @@ public class ObjectMapperTests {
         assertEquals("Last Name Test7", outputSeven.getLastName());
         assertEquals("Address Test7", outputSeven.getAddress());
         assertEquals("Female", outputSeven.getGender());
-
         PersonDTOv2 outputTwelve = outputList.get(12);
 
         assertEquals(12L, outputTwelve.getId());
@@ -68,17 +67,18 @@ public class ObjectMapperTests {
     }
 
     @Test
-    public void parseDTOToEntityTest() {
+    void parseDTOToEntityTest() {
         Person output = parseObject(inputObject.mockDTO(), Person.class);
         assertEquals(0L, output.getId());
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
         assertEquals("Address Test0", output.getAddress());
         assertEquals("Male", output.getGender());
+        assertEquals(true, output.isEnabled());
     }
 
     @Test
-    public void parserDTOListToEntityListTest() {
+    void parserDTOListToEntityListTest() {
         List<Person> outputList = parseListObject(inputObject.mockDTOList(), Person.class);
         Person outputZero = outputList.getFirst();
 
@@ -87,6 +87,7 @@ public class ObjectMapperTests {
         assertEquals("Last Name Test0", outputZero.getLastName());
         assertEquals("Address Test0", outputZero.getAddress());
         assertEquals("Male", outputZero.getGender());
+        assertEquals(true, outputZero.isEnabled());
 
         Person outputSeven = outputList.get(7);
 
@@ -95,6 +96,7 @@ public class ObjectMapperTests {
         assertEquals("Last Name Test7", outputSeven.getLastName());
         assertEquals("Address Test7", outputSeven.getAddress());
         assertEquals("Female", outputSeven.getGender());
+        assertEquals(true, outputZero.isEnabled());
 
         Person outputTwelve = outputList.get(12);
 
@@ -103,5 +105,6 @@ public class ObjectMapperTests {
         assertEquals("Last Name Test12", outputTwelve.getLastName());
         assertEquals("Address Test12", outputTwelve.getAddress());
         assertEquals("Male", outputTwelve.getGender());
+        assertEquals(true, outputZero.isEnabled());
     }
 }

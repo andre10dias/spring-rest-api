@@ -286,6 +286,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
         personDto.setLastName("Last Name Test");
         personDto.setAddress("Address Test");
         personDto.setGender("Male");
+        personDto.setEnabled(true);
     }
 
 }

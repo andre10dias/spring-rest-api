@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(MockitoExtension.class)
 class PersonServiceTest {
 
@@ -38,7 +38,7 @@ class PersonServiceTest {
     @BeforeEach
     void setUp() {
         input = new MockPerson();
-        MockitoAnnotations.openMocks(this);
+//        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -102,6 +102,7 @@ class PersonServiceTest {
         persisted.setLastName(dto.getLastName());
         persisted.setAddress(dto.getAddress());
         persisted.setGender(dto.getGender());
+        persisted.setEnabled(dto.isEnabled());
 
         when(repository.save(any(Person.class))).thenReturn(persisted);
 

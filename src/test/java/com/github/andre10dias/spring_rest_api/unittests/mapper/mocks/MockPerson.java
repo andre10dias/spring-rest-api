@@ -35,7 +35,7 @@ public class MockPerson {
     }
     
     public Person mockEntity(Integer number) {
-        int monthNumber = number <= 11 ? number : 0;
+        int monthNumber = number <= 11 ? number : 1;
         // For February (month 1), limit day to 28, otherwise up to 30
         int dayNumber = (monthNumber == 1) ? Math.min(number, 28) : Math.min(number % 30, 30);
         return new Person(
