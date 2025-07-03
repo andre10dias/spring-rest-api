@@ -1,8 +1,8 @@
-package com.github.andre10dias.spring_rest_api.mapper;
+package com.github.andre10dias.spring_rest_api.unittests.mapper;
 
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
-import com.github.andre10dias.spring_rest_api.mapper.mocks.MockPerson;
+import com.github.andre10dias.spring_rest_api.unittests.mapper.mocks.MockPerson;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

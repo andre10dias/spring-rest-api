@@ -1,11 +1,12 @@
-package com.github.andre10dias.spring_rest_api.service;
+package com.github.andre10dias.spring_rest_api.unittests.service;
 
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
-import com.github.andre10dias.spring_rest_api.mapper.mocks.MockPerson;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
+import com.github.andre10dias.spring_rest_api.service.PersonService;
+import com.github.andre10dias.spring_rest_api.unittests.mapper.mocks.MockPerson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

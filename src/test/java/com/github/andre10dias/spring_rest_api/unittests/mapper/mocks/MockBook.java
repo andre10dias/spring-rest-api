@@ -1,4 +1,4 @@
-package com.github.andre10dias.spring_rest_api.mapper.mocks;
+package com.github.andre10dias.spring_rest_api.unittests.mapper.mocks;
 
 import com.github.andre10dias.spring_rest_api.data.dto.v1.BookDTO;
 import com.github.andre10dias.spring_rest_api.model.Book;

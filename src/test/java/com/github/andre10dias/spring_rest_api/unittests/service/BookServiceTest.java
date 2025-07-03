@@ -1,10 +1,11 @@
-package com.github.andre10dias.spring_rest_api.service;
+package com.github.andre10dias.spring_rest_api.unittests.service;
 
 import com.github.andre10dias.spring_rest_api.data.dto.v1.BookDTO;
 import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
-import com.github.andre10dias.spring_rest_api.mapper.mocks.MockBook;
 import com.github.andre10dias.spring_rest_api.model.Book;
 import com.github.andre10dias.spring_rest_api.repository.BookRepository;
+import com.github.andre10dias.spring_rest_api.service.BookService;
+import com.github.andre10dias.spring_rest_api.unittests.mapper.mocks.MockBook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
