@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseListObject;
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseObject;
 import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.toPerson;
+import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.toPersonDTOv2;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -87,9 +88,10 @@ public class PersonService {
     public PersonDTOv2 createV2(PersonDTOv2 personDto) {
         logger.info("create: " + personDto);
         var personToSave = toPerson(personDto);
-        personRepository.save(personToSave);
-        personDto.add(linkTo(methodOn(PersonController.class).create(personDto)).withRel("create").withType("POST"));
-        return personDto;
+        var savedPerson = personRepository.save(personToSave);
+        var dto = toPersonDTOv2(savedPerson);
+        dto.add(linkTo(methodOn(PersonController.class).create(dto)).withRel("create").withType("POST"));
+        return dto;
     }
 
     private static void hateoasLinkAdd(PersonDTO dto) {

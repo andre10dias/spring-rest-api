@@ -6,6 +6,10 @@ import com.github.andre10dias.spring_rest_api.model.Person;
 import java.util.List;
 
 public class PersonMapper {
+    
+    private PersonMapper() {
+        // Private constructor to prevent instantiation
+    }
 
     public static PersonDTOv2 toPersonDTOv2(Person person) {
         return new PersonDTOv2(

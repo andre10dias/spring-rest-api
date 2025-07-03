@@ -1,6 +1,5 @@
 package com.github.andre10dias.spring_rest_api.data.dto.v2;
 
-import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,7 +20,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class PersonDTOv2 extends RepresentationModel<PersonDTO> {
+public class PersonDTOv2 extends RepresentationModel<PersonDTOv2> {
     Long id;
     String firstName;
     String lastName;
