@@ -36,13 +36,15 @@ public class MockPerson {
     
     public Person mockEntity(Integer number) {
         int monthNumber = number <= 11 ? number : 0;
-        int dayNumber = (monthNumber == 1 && number <= 27) || (monthNumber != 1 && number <= 29) ? number : 0;
+        // For February (month 1), limit day to 28, otherwise up to 30
+        int dayNumber = (monthNumber == 1) ? Math.min(number, 28) : Math.min(number % 30, 30);
         return new Person(
                 number.longValue(),
                 "First Name Test" + number,
                 "Last Name Test" + number,
                 "Address Test" + number,
                 ((number % 2)==0) ? "Male" : "Female",
+                true,
                 LocalDate.of(1950 + number, 1 + monthNumber, 1 + dayNumber)
         );
     }
@@ -53,7 +55,8 @@ public class MockPerson {
                 "First Name Test" + number,
                 "Last Name Test" + number,
                 "Address Test" + number,
-                ((number % 2)==0) ? "Male" : "Female"
+                ((number % 2)==0) ? "Male" : "Female",
+                true
         );
     }
 

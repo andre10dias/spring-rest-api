@@ -13,4 +13,5 @@ public class PersonDTO {
     String lastName;
     String address;
     String gender;
+    boolean enabled;
 }

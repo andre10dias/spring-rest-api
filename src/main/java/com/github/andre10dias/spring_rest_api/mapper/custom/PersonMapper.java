@@ -29,6 +29,7 @@ public class PersonMapper {
                 personDTOv2.getLastName(),
                 personDTOv2.getAddress(),
                 personDTOv2.getGender(),
+                true,
                 personDTOv2.getBirthday()
         );
     }

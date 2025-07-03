@@ -66,20 +66,16 @@ public class PersonController implements PersonControllerDocs {
         return personService.update(person);
     }
 
-    @Operation(summary = "Delete person", description = "Deletes a specific person by your ID.", tags = {"People"}, responses = {
-            @ApiResponse(
-                    description = "Successful operation",
-                    responseCode = "200",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = PersonDTO.class)
-                    )
-            ),
-            @ApiResponse(description = "Bad request", responseCode = "400"),
-            @ApiResponse(description = "Unauthorized", responseCode = "401"),
-            @ApiResponse(description = "Not found", responseCode = "404"),
-            @ApiResponse(description = "Internal server error", responseCode = "500")
+    @PatchMapping(value = "/{id}", produces = {
+            MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
     })
+    @Override
+    public PersonDTO disablePerson(@PathVariable("id") Long id) {
+        return personService.disablePerson(id);
+    }
+
     @DeleteMapping(value = "/{id}", produces = {
             MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE,

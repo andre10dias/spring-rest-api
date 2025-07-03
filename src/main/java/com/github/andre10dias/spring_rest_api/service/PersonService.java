@@ -6,11 +6,11 @@ import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseListObject;
@@ -20,13 +20,11 @@ import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@RequiredArgsConstructor
 @Service
 public class PersonService {
 
-    @Autowired
-    private PersonRepository personRepository;
-
-    private final AtomicLong counter = new AtomicLong();
+    private final PersonRepository personRepository;
     private final Logger logger = Logger.getLogger(PersonService.class.getName());
 
     public List<PersonDTO> findAll() {
@@ -39,7 +37,7 @@ public class PersonService {
     public PersonDTO findById(Long id) {
         logger.info("findById: " + id);
         var person = personRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Person not found")
+                () -> new RuntimeException("Person not found with id: " + id)
         );
         var dto = parseObject(person, PersonDTO.class);
         hateoasLinkAdd(dto);
@@ -77,6 +75,27 @@ public class PersonService {
         return dto;
     }
 
+    @Transactional
+    public PersonDTO disablePerson(Long id) {
+        logger.info("disabling person id: " + id);
+
+        // Verifica se existe
+        personRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Person not found")
+        );
+
+        // Atualiza
+        personRepository.disablePersonById(id);
+
+        // Recarrega a entidade atualizada
+        var updatedPerson = personRepository.findById(id).get();
+
+        var dto = parseObject(updatedPerson, PersonDTO.class);
+        hateoasLinkAdd(dto);
+        return dto;
+    }
+
+
     public void delete(Long id) {
         logger.info("delete: " + id);
         var personToDelete = personRepository.findById(id).orElseThrow(
@@ -99,6 +118,7 @@ public class PersonService {
         dto.add(linkTo(methodOn(PersonController.class).findAll()).withRel("findAll").withType("GET"));
         dto.add(linkTo(methodOn(PersonController.class).create(dto)).withRel("create").withType("POST"));
         dto.add(linkTo(methodOn(PersonController.class).update(dto)).withRel("update").withType("PUT"));
+        dto.add(linkTo(methodOn(PersonController.class).disablePerson(dto.getId())).withRel("disable").withType("PATCH"));
         dto.add(linkTo(methodOn(PersonController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
     }
 
