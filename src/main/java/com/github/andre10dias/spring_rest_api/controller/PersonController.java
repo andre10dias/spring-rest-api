@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//@CrossOrigin({"http://localhost:8080", "http://localhost:4200"})
 @RestController
 @RequestMapping("/api/people/v1")
 @Tag(name = "People", description = "Endpoints for Managing People.")
