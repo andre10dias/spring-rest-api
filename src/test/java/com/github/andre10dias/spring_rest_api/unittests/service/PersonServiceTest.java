@@ -13,8 +13,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,15 +44,17 @@ class PersonServiceTest {
     @Test
     void findAll() {
         List<Person> personList = input.mockEntityList();
+        Pageable pageable = PageRequest.of(0, 12, Sort.by(Sort.Direction.ASC, "firstName"));
+        Page<Person> personPage = new PageImpl<>(personList, pageable, personList.size());
 
-        when(repository.findAll()).thenReturn(personList);
+        when(repository.findAll(pageable)).thenReturn(personPage);
 
-        List<PersonDTO> result = service.findAll();
+        Page<PersonDTO> result = service.findAll(pageable);
 
         assertNotNull(result);
-        assertEquals(14, result.size());
+        assertEquals(14, result.getContent().size());
 
-        for (PersonDTO dto : result) {
+        for (PersonDTO dto : result.getContent()) {
             assertNotNull(dto.getId());
             assertNotNull(dto.getLinks());
 
@@ -66,7 +68,7 @@ class PersonServiceTest {
             assertTrue(hasSelfLink, "Link 'self' com tipo 'GET' não encontrado para id " + dto.getId());
         }
 
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAll(pageable);
     }
 
     @Test

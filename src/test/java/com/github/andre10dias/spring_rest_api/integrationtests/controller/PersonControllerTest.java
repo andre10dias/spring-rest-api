@@ -3,6 +3,7 @@ package com.github.andre10dias.spring_rest_api.integrationtests.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -54,16 +55,14 @@ class PersonControllerTest extends AbstractIntegrationTest {
     @Test
     @Order(5)
     void findAll() throws JsonProcessingException {
-        specification = new RequestSpecBuilder()
-                .addHeader(TestConfig.ORIGIN_HEADER, TestConfig.ANGULAR_ORIGIN_VALUE)
-                .setBasePath("/api/people/v1")
-                .setPort(TestConfig.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
+        specification = createSpec(TestConfig.ANGULAR_ORIGIN_VALUE);
 
         var content = given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .queryParam("page", 0)
+                .queryParam("limit", 5)
+                .queryParam("direction", "desc")
+                .queryParam("orderBy", "firstName")
                 .when()
                 .get()
                 .then()
@@ -71,31 +70,30 @@ class PersonControllerTest extends AbstractIntegrationTest {
                 .extract()
                 .body().asString();
 
-        List<PersonDTO> personDtoList = objectMapper.readValue(content, new TypeReference<List<PersonDTO>>() {});
+        JsonNode root = objectMapper.readTree(content);
+        JsonNode contentNode = root.path("content");
 
-        assertNotNull(personDtoList);
-        assertFalse(personDtoList.isEmpty());
-
-        boolean found = personDtoList.stream().anyMatch(person ->
-                person.getFirstName().equals("First Name Test") &&
-                        person.getLastName().equals("Last Name Test") &&
-                        person.getAddress().equals("Address Test") &&
-                        person.getGender().equals("Male")
+        List<PersonDTO> personList = objectMapper.readValue(
+                contentNode.toString(),
+                new TypeReference<List<PersonDTO>>() {}
         );
 
-        assertTrue(found, "Expected person not found in the list.");
+        assertNotNull(personList);
+        assertFalse(personList.isEmpty());
+        assertTrue(personList.size() <= 5); // paginado
+
+        // Valida ordenação desc por firstName
+        for (int i = 0; i < personList.size() - 1; i++) {
+            String current = personList.get(i).getFirstName();
+            String next = personList.get(i + 1).getFirstName();
+            assertTrue(current.compareToIgnoreCase(next) >= 0, "Lista não está em ordem decrescente");
+        }
     }
 
     @Test
     @Order(3)
     void findById() throws JsonProcessingException {
-        specification = new RequestSpecBuilder()
-                .addHeader(TestConfig.ORIGIN_HEADER, TestConfig.LOCAL_ORIGIN_VALUE)
-                .setBasePath("/api/people/v1")
-                .setPort(TestConfig.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
+        specification = createSpec(TestConfig.LOCAL_ORIGIN_VALUE);
 
         var content = given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -118,13 +116,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     @Test
     @Order(4)
     void findByIdWithWrongOrigin() {
-        specification = new RequestSpecBuilder()
-                .addHeader(TestConfig.ORIGIN_HEADER, TestConfig.WRONG_ORIGIN_VALUE)
-                .setBasePath("/api/people/v1")
-                .setPort(TestConfig.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
+        specification = createSpec(TestConfig.WRONG_ORIGIN_VALUE);
 
         var content = given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -143,13 +135,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     @Order(1)
     void create() throws JsonProcessingException {
         mockPerson();
-        specification = new RequestSpecBuilder()
-                .addHeader(TestConfig.ORIGIN_HEADER, TestConfig.ANGULAR_ORIGIN_VALUE)
-                .setBasePath("/api/people/v1")
-                .setPort(TestConfig.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
+        specification = createSpec(TestConfig.ANGULAR_ORIGIN_VALUE);
 
         var content = given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -181,13 +167,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     @Order(2)
     void createWithWrongOrigin() {
         mockPerson();
-        specification = new RequestSpecBuilder()
-                .addHeader(TestConfig.ORIGIN_HEADER, TestConfig.WRONG_ORIGIN_VALUE)
-                .setBasePath("/api/people/v1")
-                .setPort(TestConfig.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
+        specification = createSpec(TestConfig.WRONG_ORIGIN_VALUE);
 
         var content = given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -245,13 +225,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
         personDtoV2.setGender("Male");
         personDtoV2.setBirthday(LocalDate.of(2001, 1, 1));
 
-        specification = new RequestSpecBuilder()
-                .addHeader(TestConfig.ORIGIN_HEADER, TestConfig.ANGULAR_ORIGIN_VALUE)
-                .setBasePath("/api/people/v1")
-                .setPort(TestConfig.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
+        specification = createSpec(TestConfig.ANGULAR_ORIGIN_VALUE);
 
         var content = given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -287,6 +261,16 @@ class PersonControllerTest extends AbstractIntegrationTest {
         personDto.setAddress("Address Test");
         personDto.setGender("Male");
         personDto.setEnabled(true);
+    }
+
+    private static RequestSpecification createSpec(String origin) {
+        return new RequestSpecBuilder()
+                .addHeader(TestConfig.ORIGIN_HEADER, origin)
+                .setBasePath("/api/people/v1")
+                .setPort(TestConfig.SERVER_PORT)
+                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
+                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+                .build();
     }
 
 }

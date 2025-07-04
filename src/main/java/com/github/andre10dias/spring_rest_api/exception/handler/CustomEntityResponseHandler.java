@@ -1,6 +1,7 @@
 package com.github.andre10dias.spring_rest_api.exception.handler;
 
 import com.github.andre10dias.spring_rest_api.exception.ExceptionResponse;
+import com.github.andre10dias.spring_rest_api.exception.InvalidPageRequestException;
 import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
 import com.github.andre10dias.spring_rest_api.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(RequiredObjectIsNullException.class)
+    @ExceptionHandler({RequiredObjectIsNullException.class, InvalidPageRequestException.class})
     public final ResponseEntity<ExceptionResponse> handleBadRequestException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 LocalDate.now(), ex.getMessage(), request.getDescription(false));

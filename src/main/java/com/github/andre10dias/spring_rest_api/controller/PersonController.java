@@ -3,18 +3,17 @@ package com.github.andre10dias.spring_rest_api.controller;
 import com.github.andre10dias.spring_rest_api.controller.docs.PersonControllerDocs;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
+import com.github.andre10dias.spring_rest_api.exception.InvalidPageRequestException;
 import com.github.andre10dias.spring_rest_api.service.PersonService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 //@CrossOrigin({"http://localhost:8080", "http://localhost:4200"})
 @RequiredArgsConstructor
@@ -32,8 +31,18 @@ public class PersonController implements PersonControllerDocs {
             MediaType.APPLICATION_YAML_VALUE
     })
     @Override
-    public List<PersonDTO> findAll() {
-        return personService.findAll();
+    public ResponseEntity<Page<PersonDTO>> findAll(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "limit", defaultValue = "12") int limit,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction,
+            @RequestParam(value = "orderBy", defaultValue = "firstName") String orderBy
+    ) {
+        if (page < 1 || limit < 1) {
+            throw new InvalidPageRequestException("Page and limit parameters must be greater than or equal to 1.");
+        }
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page-1, limit, Sort.by(sortDirection, orderBy));
+        return ResponseEntity.ok(personService.findAll(pageable));
     }
 
     @GetMapping(value = "/{id}", produces = {
