@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 /*
  * ⚠️ O Dozer não suporta record diretamente porque records não têm construtor default e são imutáveis.
@@ -18,6 +19,7 @@ import org.springframework.hateoas.RepresentationModel;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Relation(collectionRelation = "people")
 public class PersonDTO extends RepresentationModel<PersonDTO> {
     Long id;
     String firstName;

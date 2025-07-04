@@ -11,6 +11,7 @@ import com.github.andre10dias.spring_rest_api.config.TestConfig;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.dto.PersonDTO;
+import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.dto.wrapper.WrapperPersonDTO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -54,15 +55,18 @@ class PersonControllerTest extends AbstractIntegrationTest {
 
     @Test
     @Order(5)
+//    @Disabled("REASON: Still under development.")
     void findAll() throws JsonProcessingException {
         specification = createSpec(TestConfig.ANGULAR_ORIGIN_VALUE);
 
         var content = given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .queryParam("page", 0)
-                .queryParam("limit", 5)
-                .queryParam("direction", "desc")
-                .queryParam("orderBy", "firstName")
+                .queryParams(
+                        "page", 3,
+                        "limit", 5,
+                        "direction", "desc",
+                        "orderBy", "firstName"
+                )
                 .when()
                 .get()
                 .then()
@@ -70,17 +74,26 @@ class PersonControllerTest extends AbstractIntegrationTest {
                 .extract()
                 .body().asString();
 
-        JsonNode root = objectMapper.readTree(content);
-        JsonNode contentNode = root.path("content");
+        WrapperPersonDTO wrapper = objectMapper.readValue(content, WrapperPersonDTO.class);
+        List<PersonDTO> personList = wrapper.getEmbedded().getPeopleDto();
+        PersonDTO person = personList.getFirst();
 
-        List<PersonDTO> personList = objectMapper.readValue(
-                contentNode.toString(),
+        assertNotNull(person);
+        assertNotNull(person.getId());
+        assertNotNull(person.getFirstName());
+        assertNotNull(person.getLastName());
+        assertNotNull(person.getGender());
+
+        JsonNode root = objectMapper.readTree(content);
+
+        // HAL _embedded.personDTOList
+        JsonNode embeddedNode = root.path("_embedded");
+        JsonNode personListNode = embeddedNode.path("people"); // nome padrão da coleção no HAL
+
+        personList = objectMapper.readValue(
+                personListNode.toString(),
                 new TypeReference<List<PersonDTO>>() {}
         );
-
-        assertNotNull(personList);
-        assertFalse(personList.isEmpty());
-        assertTrue(personList.size() <= 5); // paginado
 
         // Valida ordenação desc por firstName
         for (int i = 0; i < personList.size() - 1; i++) {
@@ -88,7 +101,13 @@ class PersonControllerTest extends AbstractIntegrationTest {
             String next = personList.get(i + 1).getFirstName();
             assertTrue(current.compareToIgnoreCase(next) >= 0, "Lista não está em ordem decrescente");
         }
+
+        // Valida metadados da página
+        JsonNode pageNode = root.path("page");
+        assertEquals(2, pageNode.path("number").asInt()); // page-1
+        assertEquals(5, pageNode.path("size").asInt());
     }
+
 
     @Test
     @Order(3)

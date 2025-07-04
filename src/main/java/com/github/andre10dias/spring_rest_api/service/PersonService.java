@@ -10,6 +10,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.logging.Logger;
@@ -25,16 +30,51 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class PersonService {
 
     private final PersonRepository personRepository;
+    private final PagedResourcesAssembler<PersonDTO> assembler;
     private final Logger logger = Logger.getLogger(PersonService.class.getName());
 
-    public Page<PersonDTO> findAll(Pageable pageable) {
+    public PagedModel<EntityModel<PersonDTO>> findAll(Pageable pageable) {
         logger.info("findAll");
+
         Page<Person> peoplePage = personRepository.findAll(pageable);
-        return peoplePage.map(person -> {
-            PersonDTO dto = parseObject(person, PersonDTO.class);
-            hateoasLinkAdd(dto);
-            return dto;
-        });
+        Page<PersonDTO> peopleDTOPage = peoplePage.map(person -> parseObject(person, PersonDTO.class));
+
+        Sort.Order order = pageable.getSort().stream().findFirst().orElse(Sort.Order.by("firstName"));
+        String direction = order.getDirection().name().toLowerCase();
+        String orderBy = order.getProperty();
+
+        Link selfLink = linkTo(methodOn(PersonController.class)
+                .findAll(
+                        pageable.getPageNumber() + 1, // exibe como página 1
+                        pageable.getPageSize(),
+                        direction,
+                        orderBy
+                )
+        ).withSelfRel();
+
+        return assembler.toModel(peopleDTOPage, selfLink);
+    }
+
+    public PagedModel<EntityModel<PersonDTO>> findPeopleByFirstName(String firstName, Pageable pageable) {
+        logger.info("Find People By FirstName: " + firstName);
+
+        Page<Person> peoplePage = personRepository.findPeopleByFirstName(firstName, pageable);
+        Page<PersonDTO> peopleDTOPage = peoplePage.map(person -> parseObject(person, PersonDTO.class));
+
+        Sort.Order order = pageable.getSort().stream().findFirst().orElse(Sort.Order.by("firstName"));
+        String direction = order.getDirection().name().toLowerCase();
+        String orderBy = order.getProperty();
+
+        Link selfLink = linkTo(methodOn(PersonController.class)
+                .findAll(
+                        pageable.getPageNumber() + 1, // exibe como página 1
+                        pageable.getPageSize(),
+                        direction,
+                        orderBy
+                )
+        ).withSelfRel();
+
+        return assembler.toModel(peopleDTOPage, selfLink);
     }
 
     public PersonDTO findById(Long id) {

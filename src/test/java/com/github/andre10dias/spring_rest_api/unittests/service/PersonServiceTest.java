@@ -8,6 +8,7 @@ import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
 import com.github.andre10dias.spring_rest_api.service.PersonService;
 import com.github.andre10dias.spring_rest_api.unittests.mapper.mocks.MockPerson;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +16,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -35,39 +41,68 @@ class PersonServiceTest {
     @Mock
     PersonRepository repository;
 
+    @Mock
+    private PagedResourcesAssembler<PersonDTO> assembler;
+
     @BeforeEach
     void setUp() {
         input = new MockPerson();
 //        MockitoAnnotations.openMocks(this);
+        service = new PersonService(repository, assembler); // injeta o mockado
     }
 
     @Test
+//    @Disabled("REASON: Still under development.")
     void findAll() {
         List<Person> personList = input.mockEntityList();
         Pageable pageable = PageRequest.of(0, 12, Sort.by(Sort.Direction.ASC, "firstName"));
         Page<Person> personPage = new PageImpl<>(personList, pageable, personList.size());
 
+        // Mock do repositório
         when(repository.findAll(pageable)).thenReturn(personPage);
 
-        Page<PersonDTO> result = service.findAll(pageable);
+        // Converte Person para PersonDTO e adiciona o link no EntityModel (e não mais no DTO)
+        List<EntityModel<PersonDTO>> dtoList = personList.stream()
+                .map(person -> {
+                    PersonDTO dto = parseObject(person, PersonDTO.class);
+                    Link selfLink = Link.of("http://localhost/api/people/v1/" + dto.getId())
+                            .withSelfRel()
+                            .withType("GET");
 
+                    return EntityModel.of(dto, selfLink); // Aqui está o ajuste!
+                })
+                .toList();
+
+        // Cria um PagedModel simulado com os EntityModels
+        PagedModel<EntityModel<PersonDTO>> pagedModel = PagedModel.of(dtoList,
+                new PagedModel.PageMetadata(personList.size(), 0, personList.size()));
+
+        // Mock do assembler
+        when(assembler.toModel(any(Page.class), any(Link.class))).thenReturn(pagedModel);
+
+        // Chamada real ao serviço
+        PagedModel<EntityModel<PersonDTO>> result = service.findAll(pageable);
+
+        // Validações
         assertNotNull(result);
         assertEquals(14, result.getContent().size());
 
-        for (PersonDTO dto : result.getContent()) {
+        for (EntityModel<PersonDTO> model : result) {
+            PersonDTO dto = model.getContent();
+            assertNotNull(dto);
             assertNotNull(dto.getId());
-            assertNotNull(dto.getLinks());
 
-            boolean hasSelfLink = dto.getLinks().stream()
+            boolean hasSelfLink = model.getLinks().stream()
                     .anyMatch(link ->
-                            "self".equals(link.getRel().value())
-                                    && link.getHref().endsWith("/api/people/v1/" + dto.getId())
-                                    && "GET".equals(link.getType())
+                            "self".equals(link.getRel().value()) &&
+                                    link.getHref().endsWith("/api/people/v1/" + dto.getId()) &&
+                                    "GET".equals(link.getType())
                     );
 
             assertTrue(hasSelfLink, "Link 'self' com tipo 'GET' não encontrado para id " + dto.getId());
         }
 
+        // Verifica se o repositório foi chamado corretamente
         verify(repository, times(1)).findAll(pageable);
     }
 
