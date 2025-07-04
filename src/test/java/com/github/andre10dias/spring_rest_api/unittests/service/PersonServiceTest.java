@@ -69,7 +69,7 @@ class PersonServiceTest {
                             .withSelfRel()
                             .withType("GET");
 
-                    return EntityModel.of(dto, selfLink); // Aqui está o ajuste!
+                    return EntityModel.of(dto, selfLink);
                 })
                 .toList();
 
@@ -104,6 +104,66 @@ class PersonServiceTest {
 
         // Verifica se o repositório foi chamado corretamente
         verify(repository, times(1)).findAll(pageable);
+    }
+
+    @Test
+    void findPeopleByFirstName() {
+        String firstNameFilter = "rst";
+        Pageable pageable = PageRequest.of(0, 12, Sort.by(Sort.Direction.ASC, "firstName"));
+
+        // Simula a lista de entidades filtradas pelo nome
+        List<Person> filteredList = input.mockEntityList().stream()
+                .filter(p -> p.getFirstName().toLowerCase().contains(firstNameFilter))
+                .toList();
+
+        Page<Person> personPage = new PageImpl<>(filteredList, pageable, filteredList.size());
+
+        // Mock do repositório com o método correto
+        when(repository.findPeopleByFirstName(eq(firstNameFilter), eq(pageable)))
+                .thenReturn(personPage);
+
+        // Transforma para DTO com links simulados
+        List<EntityModel<PersonDTO>> dtoList = filteredList.stream()
+                .map(person -> {
+                    PersonDTO dto = parseObject(person, PersonDTO.class);
+                    Link selfLink = Link.of("http://localhost/api/people/v1/firstName/" + dto.getId())
+                            .withSelfRel()
+                            .withType("GET");
+                    return EntityModel.of(dto, selfLink);
+                })
+                .toList();
+
+        PagedModel<EntityModel<PersonDTO>> pagedModel = PagedModel.of(dtoList,
+                new PagedModel.PageMetadata(filteredList.size(), 0, filteredList.size()));
+
+        // Mock do assembler
+        when(assembler.toModel(any(Page.class), any(Link.class))).thenReturn(pagedModel);
+
+        // Chamada real ao service
+        PagedModel<EntityModel<PersonDTO>> result = service.findPeopleByFirstName(firstNameFilter, pageable);
+
+        // Verificações
+        assertNotNull(result);
+        assertEquals(filteredList.size(), result.getContent().size());
+
+        for (EntityModel<PersonDTO> model : result) {
+            PersonDTO dto = model.getContent();
+            assertNotNull(dto);
+            assertNotNull(dto.getId());
+            assertTrue(dto.getFirstName().toLowerCase().contains(firstNameFilter));
+
+            boolean hasSelfLink = model.getLinks().stream()
+                    .anyMatch(link ->
+                            "self".equals(link.getRel().value()) &&
+                                    link.getHref().endsWith("/api/people/v1/firstName/" + dto.getId()) &&
+                                    "GET".equals(link.getType())
+                    );
+
+            assertTrue(hasSelfLink, "Link 'self' com tipo 'GET' não encontrado para id " + dto.getId());
+        }
+
+        // Verifica se o repositório foi chamado corretamente
+        verify(repository, times(1)).findPeopleByFirstName(eq(firstNameFilter), eq(pageable));
     }
 
     @Test

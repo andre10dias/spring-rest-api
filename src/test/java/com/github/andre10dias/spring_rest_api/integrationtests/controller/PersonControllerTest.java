@@ -108,6 +108,54 @@ class PersonControllerTest extends AbstractIntegrationTest {
         assertEquals(5, pageNode.path("size").asInt());
     }
 
+    @Test
+    @Order(6)
+    void findPeopleByFirstName() throws JsonProcessingException {
+        specification = createSpec(TestConfig.ANGULAR_ORIGIN_VALUE);
+
+        var content = given(specification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("firstName", "ala")
+                .queryParams(
+                        "direction", "desc",
+                        "orderBy", "lastName"
+                )
+                .when()
+                .get("firstName/{firstName}")
+                .then()
+                .statusCode(200)
+                .extract()
+                .body().asString();
+
+        WrapperPersonDTO wrapper = objectMapper.readValue(content, WrapperPersonDTO.class);
+        List<PersonDTO> personList = wrapper.getEmbedded().getPeopleDto();
+        PersonDTO person = personList.getFirst();
+
+        assertNotNull(person);
+        assertNotNull(person.getId());
+        assertNotNull(person.getFirstName());
+        assertNotNull(person.getLastName());
+        assertNotNull(person.getGender());
+
+        JsonNode root = objectMapper.readTree(content);
+
+        // HAL _embedded.personDTOList
+        JsonNode embeddedNode = root.path("_embedded");
+        JsonNode personListNode = embeddedNode.path("people"); // nome padrão da coleção no HAL
+
+        personList = objectMapper.readValue(
+                personListNode.toString(),
+                new TypeReference<List<PersonDTO>>() {}
+        );
+
+        // Valida ordenação desc por firstName
+        for (int i = 0; i < personList.size() - 1; i++) {
+            String current = personList.get(i).getLastName();
+            String next = personList.get(i + 1).getLastName();
+            assertTrue(current.compareToIgnoreCase(next) >= 0, "Lista não está em ordem decrescente");
+            assertTrue(personList.get(i).getFirstName().toLowerCase().contains("ala"), "Lista nao contem 'ala'");
+        }
+    }
 
     @Test
     @Order(3)
@@ -202,7 +250,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     void update() throws JsonProcessingException {
         personDto.setFirstName("Updated Name");
 
@@ -223,7 +271,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     void delete() {
         given(specification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -235,7 +283,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     void CreateV2() throws JsonProcessingException {
         PersonDTOv2 personDtoV2 = new PersonDTOv2();
         personDtoV2.setFirstName("First Name Test");
