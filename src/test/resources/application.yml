@@ -7,6 +7,9 @@ server:
 cors:
   originPatterns: http://localhost:4200,http://localhost:3000,http://localhost:8080
 
+file:
+  upload-dir: C:/Udemy/file_temp
+
 spring:
   application:
     name: spring-rest-api
@@ -18,6 +21,12 @@ spring:
       dialect: org.hibernate.dialect.MySQL5Dialect
       ddl-auto: none
     open-in-view: false
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB # tamanho dos pedaços do multipart
+      max-file-size: 10MB # tamanho do arquivo para upload
+      max-request-size: 15MB # tamanho de download
 
 logging:
   level:

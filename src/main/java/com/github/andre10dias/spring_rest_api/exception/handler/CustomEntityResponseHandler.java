@@ -1,9 +1,6 @@
 package com.github.andre10dias.spring_rest_api.exception.handler;
 
-import com.github.andre10dias.spring_rest_api.exception.ExceptionResponse;
-import com.github.andre10dias.spring_rest_api.exception.InvalidPageRequestException;
-import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
-import com.github.andre10dias.spring_rest_api.exception.ResourceNotFoundException;
+import com.github.andre10dias.spring_rest_api.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,14 +15,14 @@ import java.time.LocalDate;
 @ControllerAdvice
 public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class, FileStorageException.class})
     public final ResponseEntity<ExceptionResponse> handleAllException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 LocalDate.now(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler({ResourceNotFoundException.class, FileNotFoundException.class})
     public final ResponseEntity<ExceptionResponse> handleNotFoundException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 LocalDate.now(), ex.getMessage(), request.getDescription(false));

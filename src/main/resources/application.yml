@@ -15,6 +15,12 @@ spring:
       dialect: org.hibernate.dialect.MySQL5Dialect
       ddl-auto: none
     open-in-view: false
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB # tamanho dos pedaços do multipart
+      max-file-size: 10MB # tamanho do arquivo para upload
+      max-request-size: 15MB # tamanho de download
 
 logging:
   level:
