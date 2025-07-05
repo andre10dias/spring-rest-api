@@ -3,10 +3,10 @@ package com.github.andre10dias.spring_rest_api.controller;
 import com.github.andre10dias.spring_rest_api.controller.docs.FileControllerDocs;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.UploadFileResponseDTO;
 import com.github.andre10dias.spring_rest_api.service.FileStorageService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -43,9 +44,12 @@ public class FileController implements FileControllerDocs {
         );
     }
 
+    @PostMapping("/uploadMultipleFiles")
     @Override
-    public List<UploadFileResponseDTO> uploadMultipleFiles(MultipartFile[] files) {
-        return List.of();
+    public List<UploadFileResponseDTO> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
+        return Arrays.stream(files)
+                .map(this::uploadFile)
+                .toList();
     }
 
     @Override
