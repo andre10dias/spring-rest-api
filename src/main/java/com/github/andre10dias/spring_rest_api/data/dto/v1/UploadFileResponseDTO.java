@@ -1,10 +1,10 @@
 package com.github.andre10dias.spring_rest_api.data.dto.v1;
 
-import io.swagger.v3.oas.annotations.media.ArraySchema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ArraySchema
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class UploadFileResponseDTO {

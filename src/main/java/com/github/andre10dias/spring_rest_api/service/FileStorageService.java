@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,8 +29,9 @@ public class FileStorageService {
         try {
             Files.createDirectories(this.fileStorageLocation);
             logger.info("Upload directory created/verified: {}", this.fileStorageLocation);
-        } catch (Exception e) {
-            throw new FileStorageException("Could not create the directory to store files.", e);
+        } catch (IOException | SecurityException e) {
+            logger.error("Could not create the directory: {}", this.fileStorageLocation);
+            throw new FileStorageException("Could not create the directory: " + fileStorageLocation, e);
         }
     }
 
@@ -38,10 +40,12 @@ public class FileStorageService {
 
         try {
             if (file.isEmpty()) {
+                logger.error("Empty file: {}", filename);
                 throw new FileStorageException("Empty file: " + filename);
             }
 
             if (filename.contains("..")) {
+                logger.error("Invalid path sequence in filename: {}", filename);
                 throw new FileStorageException("Invalid path sequence in filename: " + filename);
             }
 
@@ -51,7 +55,8 @@ public class FileStorageService {
             return filename;
 
         } catch (Exception e) {
-            throw new FileStorageException("Failed to store file " + filename, e);
+            logger.error("Could not store file: {}", filename);
+            throw new FileStorageException("Could not store file " + filename, e);
         }
     }
 

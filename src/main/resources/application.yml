@@ -1,6 +1,9 @@
 cors:
   originPatterns: http://localhost:4200,http://localhost:3000,http://localhost:8080
 
+file:
+  upload-dir: C:/Udemy/file_temp
+
 spring:
   application:
     name: spring-rest-api
