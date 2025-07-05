@@ -1,9 +1,12 @@
 package com.github.andre10dias.spring_rest_api.service;
 
 import com.github.andre10dias.spring_rest_api.config.FileStorageConfig;
+import com.github.andre10dias.spring_rest_api.exception.FileNotFoundException;
 import com.github.andre10dias.spring_rest_api.exception.FileStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +60,21 @@ public class FileStorageService {
         } catch (Exception e) {
             logger.error("Could not store file: {}", filename);
             throw new FileStorageException("Could not store file " + filename, e);
+        }
+    }
+
+    public Resource loadFileAsResource(String filename) {
+        try {
+            Path filePath = fileStorageLocation.resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                logger.error("File not found: {}", filename);
+                throw new FileNotFoundException("File not found: " + filename);
+            }
+        } catch (Exception e) {
+            throw new FileStorageException("File not found: " + filename, e);
         }
     }
 

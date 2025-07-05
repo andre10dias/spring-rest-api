@@ -4,14 +4,14 @@ import com.github.andre10dias.spring_rest_api.controller.docs.FileControllerDocs
 import com.github.andre10dias.spring_rest_api.data.dto.v1.UploadFileResponseDTO;
 import com.github.andre10dias.spring_rest_api.service.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -52,9 +52,24 @@ public class FileController implements FileControllerDocs {
                 .toList();
     }
 
+    @GetMapping("/downloadFile/{filename:.+}")
     @Override
-    public ResponseEntity<?> downloadFile(String fileName, HttpServletRequest request) {
-        return null;
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename, HttpServletRequest request) {
+        Resource resource = service.loadFileAsResource(filename);
+        String contentType = null;
+        try {
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (Exception e) {
+            logger.error("Could not determine file type: {}", filename);
+        }
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header("Content-Disposition", "attachment; " +
+                        "filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
 }
