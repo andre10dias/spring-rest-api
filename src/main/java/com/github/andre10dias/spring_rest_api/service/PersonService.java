@@ -3,12 +3,18 @@ package com.github.andre10dias.spring_rest_api.service;
 import com.github.andre10dias.spring_rest_api.controller.PersonController;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
+import com.github.andre10dias.spring_rest_api.exception.FileNotProvidedException;
+import com.github.andre10dias.spring_rest_api.exception.FileStorageException;
 import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
 import com.github.andre10dias.spring_rest_api.exception.ResourceNotFoundException;
+import com.github.andre10dias.spring_rest_api.file.importer.contract.FileImporter;
+import com.github.andre10dias.spring_rest_api.file.importer.factory.FileImporterFactory;
+import com.github.andre10dias.spring_rest_api.file.importer.impl.XlsxImporter;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,8 +23,14 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseObject;
 import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.toPerson;
@@ -32,6 +44,7 @@ public class PersonService {
 
     private final PersonRepository personRepository;
     private final PagedResourcesAssembler<PersonDTO> assembler;
+    private final FileImporterFactory fileImporterFactory;
     private static final Logger logger = Logger.getLogger(PersonService.class.getName());
 
     public PagedModel<EntityModel<PersonDTO>> findAll(Pageable pageable) {
@@ -108,6 +121,37 @@ public class PersonService {
         var person = personRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + id));
         personRepository.delete(person);
+    }
+
+    public List<PersonDTO> importPeopleFromFile(MultipartFile file) throws IOException {
+        logger.info("Importing People from file!");
+
+        if (file == null || file.isEmpty()) {
+            throw new FileNotProvidedException("Please provide a valid file.");
+        }
+
+        try (InputStream inputStream = file.getInputStream()) {
+            String filename = Optional.ofNullable(file.getOriginalFilename())
+                    .orElseThrow(() -> new FileNotProvidedException("Filename cannot be null."));
+
+            FileImporter importer = this.fileImporterFactory.getFileImporter(filename);
+
+            // Importando e salvando os dados
+            List<Person> people = importer.importFile(inputStream).stream()
+                    .map(dto -> personRepository.save(parseObject(dto, Person.class)))
+                    .toList();
+
+            // Retornando DTOs com HATEOAS links
+            return people.stream()
+                    .map(person -> {
+                        var dto = parseObject(person, PersonDTO.class);
+                        addHateoasLinks(dto);
+                        return dto;
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new FileStorageException("Error importing file: " + file.getOriginalFilename(), e);
+        }
     }
 
     public PersonDTOv2 createV2(PersonDTOv2 personDto) {

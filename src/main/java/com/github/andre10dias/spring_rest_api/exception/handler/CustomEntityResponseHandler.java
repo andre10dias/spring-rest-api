@@ -29,7 +29,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({RequiredObjectIsNullException.class, InvalidPageRequestException.class})
+    @ExceptionHandler({RequiredObjectIsNullException.class, InvalidPageRequestException.class, FileNotProvidedException.class})
     public final ResponseEntity<ExceptionResponse> handleBadRequestException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 LocalDate.now(), ex.getMessage(), request.getDescription(false));
