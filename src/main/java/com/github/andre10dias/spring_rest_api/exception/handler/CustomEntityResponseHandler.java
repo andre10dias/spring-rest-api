@@ -22,7 +22,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({ResourceNotFoundException.class, FileNotFoundException.class})
+    @ExceptionHandler({ResourceNotFoundException.class, FileNotFoundException.class, UnsupportedFileException.class})
     public final ResponseEntity<ExceptionResponse> handleNotFoundException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 LocalDate.now(), ex.getMessage(), request.getDescription(false));

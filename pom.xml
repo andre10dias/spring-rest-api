@@ -34,6 +34,8 @@
 		<springdoc.version>2.8.9</springdoc.version>
 		<testcontainers.version>1.21.3</testcontainers.version>
 		<rest-assured.version>5.5.5</rest-assured.version>
+		<commons.csv.version>1.14.0</commons.csv.version>
+		<poi.ooxml.version>5.4.1</poi.ooxml.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -62,6 +64,16 @@
 			<groupId>com.github.dozermapper</groupId>
 			<artifactId>dozer-core</artifactId>
 			<version>${dozer.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi.ooxml.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>${commons.csv.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
