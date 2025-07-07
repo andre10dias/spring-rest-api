@@ -3,36 +3,41 @@ package com.github.andre10dias.spring_rest_api.file.importer.impl;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.file.importer.contract.FileImporter;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
+@Component
 public class CsvImporter implements FileImporter {
 
-    private static final String COL_FIRST_NAME = "firstName";
-    private static final String COL_LAST_NAME = "lastName";
+    private static final String COL_FIRST_NAME = "first_name";
+    private static final String COL_LAST_NAME = "last_name";
     private static final String COL_ADDRESS = "address";
     private static final String COL_GENDER = "gender";
 
     @Override
     public List<PersonDTO> importFile(InputStream inputStream) throws IOException {
-        // Os métodos abaixo estão deprecated na 1.14.0, mas ainda são a melhor forma estável de uso
-        CSVFormat format = CSVFormat.DEFAULT
-                .withHeader() // assume que a primeira linha contém os nomes das colunas
-                .withSkipHeaderRecord(true)
-                .withIgnoreEmptyLines(true)
-                .withTrim();
+        var format = CSVFormat.Builder.create(CSVFormat.DEFAULT)
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .setIgnoreEmptyLines(true)
+                .setTrim(true)
+                .build();
 
-        Iterable<CSVRecord> csvRecords = format.parse(new InputStreamReader(inputStream));
-        return parseRecordsToPersonDTO(csvRecords);
+        try (var reader = new InputStreamReader(inputStream);
+             var parser = new CSVParser(reader, format)
+        ) {
+            return parseRecordsToPersonDTO(parser.getRecords());
+        }
     }
 
-    private List<PersonDTO> parseRecordsToPersonDTO(Iterable<CSVRecord> csvRecords) {
-        return StreamSupport.stream(csvRecords.spliterator(), false)
+    private List<PersonDTO> parseRecordsToPersonDTO(List<CSVRecord> csvRecords) {
+        return csvRecords.stream()
                 .map(csvRecord -> {
                     PersonDTO person = new PersonDTO();
                     person.setFirstName(getSafeValue(csvRecord, COL_FIRST_NAME));

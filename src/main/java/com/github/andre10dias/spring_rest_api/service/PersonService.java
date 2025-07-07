@@ -123,7 +123,7 @@ public class PersonService {
         personRepository.delete(person);
     }
 
-    public List<PersonDTO> importPeopleFromFile(MultipartFile file) throws IOException {
+    public List<PersonDTO> importPeopleFromFile(MultipartFile file) {
         logger.info("Importing People from file!");
 
         if (file == null || file.isEmpty()) {

@@ -15,6 +15,9 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 //@CrossOrigin({"http://localhost:8080", "http://localhost:4200"})
 @RequiredArgsConstructor
@@ -115,6 +118,16 @@ public class PersonController implements PersonControllerDocs {
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         personService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/import", produces = {
+            MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE,
+            MediaType.APPLICATION_YAML_VALUE
+    })
+    @Override
+    public List<PersonDTO> importPeopleFromFile(@RequestParam("file") MultipartFile file) {
+        return personService.importPeopleFromFile(file);
     }
 
     @PostMapping(value = "/v2", produces = {

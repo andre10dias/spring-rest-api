@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -188,6 +188,29 @@ public interface PersonControllerDocs {
     ResponseEntity<Void> delete(@PathVariable("id") Long id);
 
     @Operation(
+            summary = "Upload CSV file with people data",
+            description = """
+                    Upload a CSV file containing people data to create multiple people at once.
+                    The CSV should have the following columns: firstName, lastName, address, gender.
+                    The first row is treated as a header and will be skipped.
+                    """,
+            tags = {"People"},
+            responses = {
+                    @ApiResponse(
+                            description = "Successful operation",
+                            responseCode = "200",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = PersonDTO.class))
+                            )
+                    ),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
+                    @ApiResponse(description = "Internal server error", responseCode = "500")
+            }
+    )
+    List<PersonDTO> importPeopleFromFile(@RequestParam("file") MultipartFile file);
+
+    @Operation(
             summary = "Create person v2",
             description = """
                     Second version of create a new person by passing in a JSON, XML or YAML representation
@@ -208,4 +231,5 @@ public interface PersonControllerDocs {
             }
     )
     PersonDTOv2 create(@RequestBody PersonDTOv2 person);
+
 }

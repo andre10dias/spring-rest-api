@@ -3,6 +3,7 @@ package com.github.andre10dias.spring_rest_api.unittests.service;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
+import com.github.andre10dias.spring_rest_api.file.importer.factory.FileImporterFactory;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
 import com.github.andre10dias.spring_rest_api.service.PersonService;
@@ -44,11 +45,14 @@ class PersonServiceTest {
     @Mock
     private PagedResourcesAssembler<PersonDTO> assembler;
 
+    @Mock
+    private FileImporterFactory fileImporterFactory;
+
     @BeforeEach
     void setUp() {
         input = new MockPerson();
 //        MockitoAnnotations.openMocks(this);
-        service = new PersonService(repository, assembler); // injeta o mockado
+        service = new PersonService(repository, assembler, fileImporterFactory); // injeta o mockado
     }
 
     @Test
