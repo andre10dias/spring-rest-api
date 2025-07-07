@@ -191,5 +191,6 @@ public class PersonService {
         dto.add(linkTo(methodOn(PersonController.class).update(dto)).withRel("update").withType("PUT"));
         dto.add(linkTo(methodOn(PersonController.class).disablePerson(dto.getId())).withRel("disable").withType("PATCH"));
         dto.add(linkTo(methodOn(PersonController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
+        dto.add(linkTo(PersonController.class).slash("import").withRel("importPeopleFromFile").withType("POST"));
     }
 }
