@@ -3,15 +3,20 @@ package com.github.andre10dias.spring_rest_api.controller;
 import com.github.andre10dias.spring_rest_api.controller.docs.PersonControllerDocs;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
+import com.github.andre10dias.spring_rest_api.exception.FileExportException;
 import com.github.andre10dias.spring_rest_api.exception.InvalidPageRequestException;
+import com.github.andre10dias.spring_rest_api.file.exporter.MediaTypes;
 import com.github.andre10dias.spring_rest_api.service.PersonService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -128,6 +133,39 @@ public class PersonController implements PersonControllerDocs {
     @Override
     public List<PersonDTO> importPeopleFromFile(@RequestParam("file") MultipartFile file) {
         return personService.importPeopleFromFile(file);
+    }
+
+    @GetMapping(value = "/export", produces = {
+            MediaTypes.XLSX,
+            MediaTypes.CSV
+    })
+    @Override
+    public ResponseEntity<Resource> exportPage(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "limit", defaultValue = "12") int limit,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction,
+            @RequestParam(value = "orderBy", defaultValue = "firstName") String orderBy,
+            HttpServletRequest request
+    ) {
+        if (page < 1 || limit < 1) {
+            throw new InvalidPageRequestException("Page and limit parameters must be greater than or equal to 1.");
+        }
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page-1, limit, Sort.by(sortDirection, orderBy));
+        String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        if (acceptHeader == null || acceptHeader.isBlank()) {
+            throw new FileExportException("Missing or invalid Accept header. Expected 'text/csv' or 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'.");
+        }
+        Resource resourceFile = personService.exportPage(acceptHeader, pageable);
+        String fileExtension = MediaTypes.XLSX.equalsIgnoreCase(acceptHeader) ? ".xlsx" : ".csv";
+        String filename = "people_exported" + fileExtension;
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(acceptHeader))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\""
+                )
+                .body(resourceFile);
     }
 
     @PostMapping(value = "/v2", produces = {

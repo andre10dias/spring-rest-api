@@ -2,11 +2,14 @@ package com.github.andre10dias.spring_rest_api.controller.docs;
 
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
+import com.github.andre10dias.spring_rest_api.file.exporter.MediaTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.io.Resource;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +44,7 @@ public interface PersonControllerDocs {
             }
     )
     ResponseEntity<PagedModel<EntityModel<PersonDTO>>> findAll(
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "limit", defaultValue = "12") int limit,
             @RequestParam(value = "direction", defaultValue = "asc") String direction,
             @RequestParam(value = "orderBy", defaultValue = "firstName") String orderBy
@@ -70,7 +73,7 @@ public interface PersonControllerDocs {
     )
     ResponseEntity<PagedModel<EntityModel<PersonDTO>>> findPeopleByFirstName(
             @PathVariable(value = "firstName") String firstName,
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "limit", defaultValue = "12") int limit,
             @RequestParam(value = "direction", defaultValue = "asc") String direction,
             @RequestParam(value = "orderBy", defaultValue = "firstName") String orderBy
@@ -209,6 +212,33 @@ public interface PersonControllerDocs {
             }
     )
     List<PersonDTO> importPeopleFromFile(@RequestParam("file") MultipartFile file);
+
+    @Operation(
+            summary = "Export People",
+            description = "Export a page of people in XLSX or CSV format.",
+            tags = {"People"},
+            responses = {
+                    @ApiResponse(
+                            description = "Successful operation",
+                            responseCode = "200",
+                            content = {
+                                    @Content(mediaType = MediaTypes.XLSX),
+                                    @Content(mediaType = MediaTypes.CSV)
+                            }),
+                    @ApiResponse(description = "No content", responseCode = "204"),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
+                    @ApiResponse(description = "Not found", responseCode = "404"),
+                    @ApiResponse(description = "Internal server error", responseCode = "500")
+            }
+    )
+    ResponseEntity<Resource> exportPage(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "limit", defaultValue = "12") int limit,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction,
+            @RequestParam(value = "orderBy", defaultValue = "firstName") String orderBy,
+            HttpServletRequest request
+    );
 
     @Operation(
             summary = "Create person v2",

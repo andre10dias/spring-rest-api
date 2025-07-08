@@ -3,18 +3,20 @@ package com.github.andre10dias.spring_rest_api.service;
 import com.github.andre10dias.spring_rest_api.controller.PersonController;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
-import com.github.andre10dias.spring_rest_api.exception.FileNotProvidedException;
-import com.github.andre10dias.spring_rest_api.exception.FileStorageException;
-import com.github.andre10dias.spring_rest_api.exception.RequiredObjectIsNullException;
-import com.github.andre10dias.spring_rest_api.exception.ResourceNotFoundException;
+import com.github.andre10dias.spring_rest_api.exception.*;
+import com.github.andre10dias.spring_rest_api.file.exporter.MediaTypes;
+import com.github.andre10dias.spring_rest_api.file.exporter.contract.FileExporter;
+import com.github.andre10dias.spring_rest_api.file.exporter.factory.FileExporterFactory;
 import com.github.andre10dias.spring_rest_api.file.importer.contract.FileImporter;
 import com.github.andre10dias.spring_rest_api.file.importer.factory.FileImporterFactory;
-import com.github.andre10dias.spring_rest_api.file.importer.impl.XlsxImporter;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,8 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.github.andre10dias.spring_rest_api.mapper.ObjectMapper.parseObject;
 import static com.github.andre10dias.spring_rest_api.mapper.custom.PersonMapper.toPerson;
@@ -45,7 +45,8 @@ public class PersonService {
     private final PersonRepository personRepository;
     private final PagedResourcesAssembler<PersonDTO> assembler;
     private final FileImporterFactory fileImporterFactory;
-    private static final Logger logger = Logger.getLogger(PersonService.class.getName());
+    private final FileExporterFactory fileExporterFactory;
+    private static final Logger logger = LoggerFactory.getLogger(PersonService.class);
 
     public PagedModel<EntityModel<PersonDTO>> findAll(Pageable pageable) {
         logger.info("findAll");
@@ -154,6 +155,20 @@ public class PersonService {
         }
     }
 
+    public Resource exportPage(String acceptHeader, Pageable pageable) {
+        logger.info("Exporting a People page!");
+        var people = personRepository.findAll(pageable).map(
+                person -> parseObject(person, PersonDTO.class)).getContent();
+        try {
+            FileExporter exporter = this.fileExporterFactory.getFileExporter(acceptHeader);
+            return exporter.exportFile(people);
+        } catch (IOException e) {
+            String message = "Error exporting file: " + acceptHeader;
+            logger.error(message, e);
+            throw new FileExportException(message, e);
+        }
+    }
+
     public PersonDTOv2 createV2(PersonDTOv2 personDto) {
         logger.info("create v2: " + personDto);
         var savedPerson = personRepository.save(toPerson(personDto));
@@ -185,12 +200,13 @@ public class PersonService {
 
     private static void addHateoasLinks(PersonDTO dto) {
         dto.add(linkTo(methodOn(PersonController.class).findById(dto.getId())).withSelfRel().withType("GET"));
-        dto.add(linkTo(methodOn(PersonController.class).findAll(0, 12, "asc", "firstName")).withRel("findAll").withType("GET"));
-        dto.add(linkTo(methodOn(PersonController.class).findPeopleByFirstName("", 0, 12, "asc", "firstName")).withRel("findPeopleByFirstName").withType("GET"));
+        dto.add(linkTo(methodOn(PersonController.class).findAll(1, 12, "asc", "firstName")).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(PersonController.class).findPeopleByFirstName("", 1, 12, "asc", "firstName")).withRel("findPeopleByFirstName").withType("GET"));
         dto.add(linkTo(methodOn(PersonController.class).create(dto)).withRel("create").withType("POST"));
         dto.add(linkTo(methodOn(PersonController.class).update(dto)).withRel("update").withType("PUT"));
         dto.add(linkTo(methodOn(PersonController.class).disablePerson(dto.getId())).withRel("disable").withType("PATCH"));
         dto.add(linkTo(methodOn(PersonController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
         dto.add(linkTo(PersonController.class).slash("import").withRel("importPeopleFromFile").withType("POST"));
+        dto.add(linkTo(PersonController.class).slash("export").withRel("exportPage").withType("GET"));
     }
 }
