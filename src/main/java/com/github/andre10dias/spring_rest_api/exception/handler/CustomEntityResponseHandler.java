@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @ControllerAdvice
 public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({Exception.class, FileStorageException.class})
+    @ExceptionHandler({Exception.class, FileStorageException.class, FileExportException.class})
     public final ResponseEntity<ExceptionResponse> handleAllException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 LocalDate.now(), ex.getMessage(), request.getDescription(false));
