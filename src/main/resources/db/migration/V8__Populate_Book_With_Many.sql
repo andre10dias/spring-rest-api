@@ -1,4 +1,4 @@
-INSERT INTO `books` (`author`, `launch_date`, `price`, `title`) VALUES
+INSERT INTO `book` (`author`, `launch_date`, `price`, `title`) VALUES
 ('Henrik Kniberg', '1984-04-24 00:00:00', 114.83, 'Scrum and XP from the Trenches'),
 ('Mike Cohn', '2011-12-09 00:00:00', 112.87, 'Agile Estimating and Planning'),
 ('Steven S. Skiena', '2012-08-08 00:00:00', 65.9, 'The Algorithm Design Manual'),
