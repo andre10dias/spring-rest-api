@@ -3,6 +3,7 @@ package com.github.andre10dias.spring_rest_api.mapper.custom;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.model.Person;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PersonMapper {
@@ -30,6 +31,9 @@ public class PersonMapper {
                 personDTOv2.getAddress(),
                 personDTOv2.getGender(),
                 true,
+                "",
+                "",
+                new ArrayList<>(),
                 personDTOv2.getBirthday()
         );
     }
