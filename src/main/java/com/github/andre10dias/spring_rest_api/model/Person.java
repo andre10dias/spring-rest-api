@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,6 +38,21 @@ public class Person implements Serializable {
 
     @Column(nullable = false)
     private boolean enabled;
+
+    @Column(name = "wikipedia_profile_url", length = 255, nullable = false)
+    private String profileUrl;
+
+    @Column(name = "photo_url", length = 255, nullable = false)
+    private String photoUrl;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "person_book",
+            joinColumns = @JoinColumn(name = "person_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private List<Book> books;
+
 
     private LocalDate birthday;
 

@@ -1,11 +1,16 @@
 package com.github.andre10dias.spring_rest_api.data.dto.v1;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.andre10dias.spring_rest_api.model.Book;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
+
+import java.util.List;
 
 /*
  * ⚠️ O Dozer não suporta record diretamente porque records não têm construtor default e são imutáveis.
@@ -27,7 +32,13 @@ public class PersonDTO extends RepresentationModel<PersonDTO> {
     String address;
     String gender;
     boolean enabled;
+    String profileUrl;
+    String photoUrl;
 
+    @JsonIgnore
+    List<Book> books;
+
+    @JsonIgnore
     public String getName() {
         return firstName + " " + lastName;
     }
