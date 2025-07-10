@@ -5,6 +5,7 @@ import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.exception.FileExportException;
 import com.github.andre10dias.spring_rest_api.exception.InvalidPageRequestException;
+import com.github.andre10dias.spring_rest_api.exception.UnsupportedFileException;
 import com.github.andre10dias.spring_rest_api.file.exporter.MediaTypes;
 import com.github.andre10dias.spring_rest_api.service.PersonService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -137,7 +138,8 @@ public class PersonController implements PersonControllerDocs {
 
     @GetMapping(value = "/export", produces = {
             MediaTypes.XLSX,
-            MediaTypes.CSV
+            MediaTypes.CSV,
+            MediaTypes.PDF
     })
     @Override
     public ResponseEntity<Resource> exportPage(
@@ -157,7 +159,7 @@ public class PersonController implements PersonControllerDocs {
             throw new FileExportException("Missing or invalid Accept header. Expected 'text/csv' or 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'.");
         }
         Resource resourceFile = personService.exportPage(acceptHeader, pageable);
-        String fileExtension = MediaTypes.XLSX.equalsIgnoreCase(acceptHeader) ? ".xlsx" : ".csv";
+        String fileExtension = getFileExtension(acceptHeader);
         String filename = "people_exported" + fileExtension;
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(acceptHeader))
@@ -166,6 +168,15 @@ public class PersonController implements PersonControllerDocs {
                         "attachment; filename=\"" + filename + "\""
                 )
                 .body(resourceFile);
+    }
+
+    private String getFileExtension(String acceptHeader) {
+        return switch (acceptHeader) {
+            case MediaTypes.XLSX -> ".xlsx";
+            case MediaTypes.CSV -> ".csv";
+            case MediaTypes.PDF -> ".pdf";
+            default -> throw new UnsupportedFileException("Unsupported media type: " + acceptHeader);
+        };
     }
 
     @PostMapping(value = "/v2", produces = {

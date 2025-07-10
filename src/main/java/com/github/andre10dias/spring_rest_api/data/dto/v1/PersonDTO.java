@@ -27,4 +27,8 @@ public class PersonDTO extends RepresentationModel<PersonDTO> {
     String address;
     String gender;
     boolean enabled;
+
+    public String getName() {
+        return firstName + " " + lastName;
+    }
 }

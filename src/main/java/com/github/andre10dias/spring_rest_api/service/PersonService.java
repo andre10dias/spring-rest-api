@@ -160,6 +160,9 @@ public class PersonService {
         var people = personRepository.findAll(pageable).map(
                 person -> parseObject(person, PersonDTO.class)).getContent();
         try {
+            if (people.isEmpty()) {
+                throw new FileStorageException("A lista de pessoas está vazia ou nula.");
+            }
             FileExporter exporter = this.fileExporterFactory.getFileExporter(acceptHeader);
             return exporter.exportFile(people);
         } catch (IOException e) {

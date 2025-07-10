@@ -223,7 +223,8 @@ public interface PersonControllerDocs {
                             responseCode = "200",
                             content = {
                                     @Content(mediaType = MediaTypes.XLSX),
-                                    @Content(mediaType = MediaTypes.CSV)
+                                    @Content(mediaType = MediaTypes.CSV),
+                                    @Content(mediaType = MediaTypes.PDF)
                             }),
                     @ApiResponse(description = "No content", responseCode = "204"),
                     @ApiResponse(description = "Bad request", responseCode = "400"),
