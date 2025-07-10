@@ -45,6 +45,9 @@ public class MockPerson {
                 "Address Test" + number,
                 ((number % 2)==0) ? "Male" : "Female",
                 true,
+                "",
+                "",
+                new ArrayList<>(),
                 LocalDate.of(1950 + number, 1 + monthNumber, 1 + dayNumber)
         );
     }
@@ -56,7 +59,10 @@ public class MockPerson {
                 "Last Name Test" + number,
                 "Address Test" + number,
                 ((number % 2)==0) ? "Male" : "Female",
-                true
+                true,
+                "",
+                "",
+                new ArrayList<>()
         );
     }
 
