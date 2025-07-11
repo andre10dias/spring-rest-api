@@ -242,6 +242,25 @@ public interface PersonControllerDocs {
     );
 
     @Operation(
+            summary = "Export Person data as PDF",
+            description = "Export a specific Person data as PDF format by your ID.",
+            tags = {"People"},
+            responses = {
+                    @ApiResponse(
+                            description = "Successful operation",
+                            responseCode = "200",
+                            content = @Content(mediaType = MediaTypes.PDF)
+                    ),
+                    @ApiResponse(description = "No content", responseCode = "204"),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
+                    @ApiResponse(description = "Not found", responseCode = "404"),
+                    @ApiResponse(description = "Internal server error", responseCode = "500")
+            }
+    )
+    ResponseEntity<Resource> exportPerson(@PathVariable("id") Long id, HttpServletRequest request);
+
+    @Operation(
             summary = "Create person v2",
             description = """
                     Second version of create a new person by passing in a JSON, XML or YAML representation

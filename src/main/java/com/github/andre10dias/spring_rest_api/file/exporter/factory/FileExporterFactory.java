@@ -1,6 +1,6 @@
 package com.github.andre10dias.spring_rest_api.file.exporter.factory;
 
-import com.github.andre10dias.spring_rest_api.file.exporter.contract.FileExporter;
+import com.github.andre10dias.spring_rest_api.file.exporter.contract.PersonExporter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +10,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FileExporterFactory {
 
-    private final Map<String, FileExporter> exporters;
+    private final Map<String, PersonExporter> exporters;
 
-    public FileExporter getFileExporter(String acceptHeader) {
-        FileExporter exporter = exporters.get(acceptHeader);
+    public PersonExporter getFileExporter(String acceptHeader) {
+        PersonExporter exporter = exporters.get(acceptHeader);
         if (exporter == null) {
             throw new UnsupportedOperationException("Unsupported file type: " + acceptHeader);
         }

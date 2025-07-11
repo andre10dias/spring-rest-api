@@ -4,13 +4,13 @@ import com.github.andre10dias.spring_rest_api.controller.PersonController;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.exception.*;
-import com.github.andre10dias.spring_rest_api.file.exporter.contract.FileExporter;
+import com.github.andre10dias.spring_rest_api.file.exporter.contract.PersonExporter;
 import com.github.andre10dias.spring_rest_api.file.exporter.factory.FileExporterFactory;
 import com.github.andre10dias.spring_rest_api.file.importer.contract.FileImporter;
 import com.github.andre10dias.spring_rest_api.file.importer.factory.FileImporterFactory;
 import com.github.andre10dias.spring_rest_api.model.Person;
 import com.github.andre10dias.spring_rest_api.repository.PersonRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,17 +46,20 @@ public class PersonService {
     private final FileExporterFactory fileExporterFactory;
     private static final Logger logger = LoggerFactory.getLogger(PersonService.class);
 
+    @Transactional(readOnly = true)
     public PagedModel<EntityModel<PersonDTO>> findAll(Pageable pageable) {
         logger.info("findAll");
         return toPagedModel(personRepository.findAll(pageable), pageable);
     }
 
+    @Transactional(readOnly = true)
     public PagedModel<EntityModel<PersonDTO>> findPeopleByFirstName(String firstName, Pageable pageable) {
         String logMsg = "Find People By FirstName: " + firstName;
         logger.info(logMsg);
         return toPagedModel(personRepository.findPeopleByFirstName(firstName, pageable), pageable);
     }
 
+    @Transactional(readOnly = true)
     public PersonDTO findById(Long id) {
         String logMsg = "findById: " + id;
         logger.info(logMsg);
@@ -81,6 +84,7 @@ public class PersonService {
         return dto;
     }
 
+    @Transactional()
     public PersonDTO update(PersonDTO personDto) {
         String logMsg = "update: " + personDto;
         logger.info(logMsg);
@@ -120,6 +124,7 @@ public class PersonService {
         return dto;
     }
 
+    @Transactional()
     public void delete(Long id) {
         String logMsg = "delete: " + id;
         logger.info(logMsg);
@@ -159,6 +164,7 @@ public class PersonService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Resource exportPage(String acceptHeader, Pageable pageable) {
         logger.info("Exporting a People page!");
         var people = personRepository.findAll(pageable).map(
@@ -167,8 +173,8 @@ public class PersonService {
             if (people.isEmpty()) {
                 throw new FileStorageException("A lista de pessoas está vazia ou nula.");
             }
-            FileExporter exporter = this.fileExporterFactory.getFileExporter(acceptHeader);
-            return exporter.exportFile(people);
+            PersonExporter exporter = this.fileExporterFactory.getFileExporter(acceptHeader);
+            return exporter.exportPeople(people);
         } catch (IOException e) {
             String message = "Error exporting file: " + acceptHeader;
             logger.error(message, e);
@@ -179,13 +185,13 @@ public class PersonService {
     public Resource exportPerson(Long id, String acceptHeader) {
         String logMsg = "finExporting data of one person: " + id;
         logger.info(logMsg);
-        var dto = personRepository.findById(id)
+        var dto = personRepository.findByIdWithBooksGraph(id)
                 .map(entity -> parseObject(entity, PersonDTO.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + id));
 
-        FileExporter exporter = this.fileExporterFactory.getFileExporter(acceptHeader);
+        PersonExporter exporter = this.fileExporterFactory.getFileExporter(acceptHeader);
         try {
-            return exporter.exportFileByPerson(dto);
+            return exporter.exportPerson(dto);
         } catch (IOException e) {
             String message = "Error exporting file: " + acceptHeader;
             logger.error(message, e);

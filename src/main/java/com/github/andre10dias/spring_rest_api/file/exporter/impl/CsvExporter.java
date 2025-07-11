@@ -3,7 +3,7 @@ package com.github.andre10dias.spring_rest_api.file.exporter.impl;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.exception.FileExportException;
 import com.github.andre10dias.spring_rest_api.file.exporter.Enums.ColumnNames;
-import com.github.andre10dias.spring_rest_api.file.exporter.contract.FileExporter;
+import com.github.andre10dias.spring_rest_api.file.exporter.contract.PersonExporter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -22,12 +22,12 @@ import java.util.List;
 import static com.github.andre10dias.spring_rest_api.file.exporter.MediaTypes.CSV;
 
 @Component(CSV)
-public class CsvExporter implements FileExporter {
+public class CsvExporter implements PersonExporter {
 
     private static final Logger logger = LoggerFactory.getLogger(CsvExporter.class);
 
     @Override
-    public Resource exportFile(List<PersonDTO> people) throws IOException {
+    public Resource exportPeople(List<PersonDTO> people) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
@@ -57,7 +57,7 @@ public class CsvExporter implements FileExporter {
     }
 
     @Override
-    public Resource exportFileByPerson(PersonDTO person) throws IOException {
+    public Resource exportPerson(PersonDTO person) throws IOException {
         return null;
     }
 

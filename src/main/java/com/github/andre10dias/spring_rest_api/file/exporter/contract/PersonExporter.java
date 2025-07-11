@@ -6,9 +6,9 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.util.List;
 
-public interface FileExporter {
+public interface PersonExporter {
 
-    Resource exportFile(List<PersonDTO> people) throws IOException;
-    Resource exportFileByPerson(PersonDTO person) throws IOException;
+    Resource exportPeople(List<PersonDTO> people) throws IOException;
+    Resource exportPerson(PersonDTO person) throws IOException;
 
 }

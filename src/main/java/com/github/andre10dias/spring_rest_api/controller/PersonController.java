@@ -170,13 +170,22 @@ public class PersonController implements PersonControllerDocs {
                 .body(resourceFile);
     }
 
-    private String getFileExtension(String acceptHeader) {
-        return switch (acceptHeader) {
-            case MediaTypes.XLSX -> ".xlsx";
-            case MediaTypes.CSV -> ".csv";
-            case MediaTypes.PDF -> ".pdf";
-            default -> throw new UnsupportedFileException("Unsupported media type: " + acceptHeader);
-        };
+    @GetMapping(value = "/export/{id}", produces = MediaTypes.PDF)
+    @Override
+    public ResponseEntity<Resource> exportPerson(@PathVariable("id") Long id, HttpServletRequest request) {
+        String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        if (acceptHeader == null || acceptHeader.isBlank()) {
+            throw new FileExportException("Missing or invalid Accept header. Expected 'application/pdf'.");
+        }
+        Resource resourceFile = personService.exportPerson(id, acceptHeader);
+        String filename = "person_" + id + ".pdf";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(acceptHeader))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\""
+                )
+                .body(resourceFile);
     }
 
     @PostMapping(value = "/v2", produces = {
@@ -187,6 +196,15 @@ public class PersonController implements PersonControllerDocs {
     @Override
     public PersonDTOv2 create(@RequestBody PersonDTOv2 person) {
         return personService.createV2(person);
+    }
+
+    private String getFileExtension(String acceptHeader) {
+        return switch (acceptHeader) {
+            case MediaTypes.XLSX -> ".xlsx";
+            case MediaTypes.CSV -> ".csv";
+            case MediaTypes.PDF -> ".pdf";
+            default -> throw new UnsupportedFileException("Unsupported media type: " + acceptHeader);
+        };
     }
 
 }

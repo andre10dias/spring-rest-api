@@ -2,6 +2,7 @@
 <jasperReport name="Person" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5f25cc2c-7a7b-44ea-885f-381d07b55939">
 	<property name="com.jaspersoft.studio.data.sql.tables" value="c3ByaW5nLXJlc3QtYXBpLnBlcnNvbiBBUyAsMTE5LDgxLGFjNzQyYWFmLThhOTctNDljYy1iNmY0&#xa;LTRiMDMyNDNmOTg1NDs="/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MySql Connection"/>
+	<parameter name="BOOK_SUB_REPORT" class="java.lang.Object"/>
 	<parameter name="PERSON_ID" class="java.lang.Long"/>
 	<parameter name="SUB_REPORT_DATA_SOURCE" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="QR_CODE_IMAGE" class="java.io.InputStream"/>
@@ -80,8 +81,8 @@ WHERE id = $P{PERSON_ID}
 	<detail>
 		<band height="90" splitType="Stretch">
 			<element kind="subreport" uuid="9153fb5a-1fa1-4868-ac01-f3d0b8f5cb9c" mode="Opaque" x="0" y="0" width="554" height="89" overflowType="Stretch">
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-				<expression><![CDATA["book.jasper"]]></expression>
+				<dataSourceExpression><![CDATA[$P{SUB_REPORT_DATA_SOURCE}]]></dataSourceExpression>
+				<expression><![CDATA[$P{BOOK_SUB_REPORT}]]></expression>
 				<parameter name="PERSON_ID">
 					<expression><![CDATA[$P{PERSON_ID}]]></expression>
 				</parameter>

@@ -3,7 +3,7 @@ package com.github.andre10dias.spring_rest_api.file.exporter.impl;
 import com.github.andre10dias.spring_rest_api.data.dto.v1.PersonDTO;
 import com.github.andre10dias.spring_rest_api.exception.FileExportException;
 import com.github.andre10dias.spring_rest_api.file.exporter.Enums.ColumnNames;
-import com.github.andre10dias.spring_rest_api.file.exporter.contract.FileExporter;
+import com.github.andre10dias.spring_rest_api.file.exporter.contract.PersonExporter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -19,12 +19,12 @@ import java.util.List;
 import static com.github.andre10dias.spring_rest_api.file.exporter.MediaTypes.XLSX;
 
 @Component(XLSX)
-public class XlsxExporter implements FileExporter {
+public class XlsxExporter implements PersonExporter {
 
     private static final Logger logger = LoggerFactory.getLogger(XlsxExporter.class);
 
     @Override
-    public Resource exportFile(List<PersonDTO> people) throws IOException {
+    public Resource exportPeople(List<PersonDTO> people) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("People");
 
@@ -66,7 +66,7 @@ public class XlsxExporter implements FileExporter {
     }
 
     @Override
-    public Resource exportFileByPerson(PersonDTO person) throws IOException {
+    public Resource exportPerson(PersonDTO person) throws IOException {
         return null;
     }
 
