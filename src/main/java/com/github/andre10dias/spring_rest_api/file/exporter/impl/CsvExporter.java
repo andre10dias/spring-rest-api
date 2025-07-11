@@ -56,6 +56,11 @@ public class CsvExporter implements FileExporter {
         }
     }
 
+    @Override
+    public Resource exportFileByPerson(PersonDTO person) throws IOException {
+        return null;
+    }
+
     private String[] getHeaders() {
         return Arrays.stream(ColumnNames.values())
                 .map(ColumnNames::getLabel)
