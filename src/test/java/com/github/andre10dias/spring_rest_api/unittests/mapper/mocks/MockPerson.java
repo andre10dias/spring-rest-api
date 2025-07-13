@@ -45,14 +45,15 @@ public class MockPerson {
                 "Address Test" + number,
                 ((number % 2)==0) ? "Male" : "Female",
                 true,
-                "",
-                "",
+                "http://profile.com.br" + number,
+                "http://photo.com.br" + number,
                 new ArrayList<>(),
                 LocalDate.of(1950 + number, 1 + monthNumber, 1 + dayNumber)
         );
     }
 
     public PersonDTO mockDTO(Integer number) {
+        MockBook mockBook = new MockBook();
         return new PersonDTO(
                 number.longValue(),
                 "First Name Test" + number,
@@ -60,9 +61,9 @@ public class MockPerson {
                 "Address Test" + number,
                 ((number % 2)==0) ? "Male" : "Female",
                 true,
-                "",
-                "",
-                new ArrayList<>()
+                "http://profile.com.br" + number,
+                "http://photo.com.br" + number,
+                mockBook.mockDTOList()
         );
     }
 

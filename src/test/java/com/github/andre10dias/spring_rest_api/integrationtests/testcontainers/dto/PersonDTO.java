@@ -1,7 +1,7 @@
 package com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.github.andre10dias.spring_rest_api.model.Book;
+import com.github.andre10dias.spring_rest_api.data.dto.v1.BookDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +22,7 @@ public class PersonDTO {
     String photoUrl;
 
     @JsonIgnore
-    List<Book> books;
+    List<BookDTO> books;
 
     @JsonIgnore
     public String getName() {

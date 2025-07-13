@@ -36,7 +36,7 @@ public class PersonDTO extends RepresentationModel<PersonDTO> {
     String photoUrl;
 
     @JsonIgnore
-    List<Book> books;
+    List<BookDTO> books;
 
     @JsonIgnore
     public String getName() {

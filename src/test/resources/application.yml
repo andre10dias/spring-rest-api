@@ -10,6 +10,9 @@ cors:
 file:
   upload-dir: C:/Udemy/file_temp
 
+reports:
+  path: "/templates/reports"
+
 spring:
   application:
     name: spring-rest-api

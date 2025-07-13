@@ -83,6 +83,8 @@ class PersonControllerTest extends AbstractIntegrationTest {
         assertNotNull(person.getFirstName());
         assertNotNull(person.getLastName());
         assertNotNull(person.getGender());
+        assertNotNull(person.getProfileUrl());
+        assertNotNull(person.getPhotoUrl());
 
         JsonNode root = objectMapper.readTree(content);
 

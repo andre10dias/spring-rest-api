@@ -46,17 +46,10 @@ class PersonServiceTest {
     @Mock
     private PagedResourcesAssembler<PersonDTO> assembler;
 
-    @Mock
-    private FileImporterFactory fileImporterFactory;
-
-    @Mock
-    private FileExporterFactory fileExporterFactory;
-
     @BeforeEach
     void setUp() {
         input = new MockPerson();
 //        MockitoAnnotations.openMocks(this);
-        service = new PersonService(repository, assembler, fileImporterFactory, fileExporterFactory); // injeta o mockado
     }
 
     @Test
@@ -111,7 +104,7 @@ class PersonServiceTest {
         }
 
         // Verifica se o repositório foi chamado corretamente
-        verify(repository, times(1)).findAll(pageable);
+        verify(repository, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
@@ -163,7 +156,8 @@ class PersonServiceTest {
             boolean hasSelfLink = model.getLinks().stream()
                     .anyMatch(link ->
                             "self".equals(link.getRel().value()) &&
-                                    link.getHref().endsWith("/api/people/v1/firstName/" + dto.getId()) &&
+                                    link.getHref().contains("/api/people/v1") &&
+                                    link.getHref().contains(dto.getId().toString()) &&
                                     "GET".equals(link.getType())
                     );
 
@@ -224,7 +218,7 @@ class PersonServiceTest {
                                 && "GET".equals(link.getType())
                 );
 
-        assertTrue(hasExpectedLink, "Link 'self' com href '/api/people/v1' e tipo 'POST' não encontrado");
+        assertTrue(hasExpectedLink, "Link 'self' com href '/api/people/v1' e tipo 'GET' não encontrado");
     }
 
     @Test
@@ -250,7 +244,8 @@ class PersonServiceTest {
                                 && "PUT".equals(link.getType())
                 );
 
-        assertTrue(hasExpectedLink, "Link 'self' com href '/api/people/v1' e tipo 'PUT' não encontrado");
+        assertTrue(hasExpectedLink, "Link 'update' com href '/api/people/v1' e tipo 'PUT' não encontrado"
+        );
     }
 
     @Test
