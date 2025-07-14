@@ -1,35 +1,31 @@
 package com.github.andre10dias.spring_rest_api.mail;
 
 import com.github.andre10dias.spring_rest_api.config.EmailConfig;
+import com.github.andre10dias.spring_rest_api.exception.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-@Component
 public class EmailSender {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmailSender.class);
     private final JavaMailSender javaMailSender;
+
     private String to;
     private String subject;
     private String body;
     private List<InternetAddress> recipients;
     private File attachment;
-
-    Logger logger = LoggerFactory.getLogger(EmailSender.class);
 
     public EmailSender(JavaMailSender javaMailSender) {
         this.recipients = new ArrayList<>();
@@ -39,9 +35,9 @@ public class EmailSender {
     public EmailSender to(String to) {
         this.to = to;
         try {
-            this.recipients = getRecipients(to);
+            this.recipients = parseRecipients(to);
         } catch (AddressException e) {
-            throw new RuntimeException(e);
+            throw new EmailSendingException("Erro ao processar destinatários do e-mail.", e);
         }
         return this;
     }
@@ -63,20 +59,25 @@ public class EmailSender {
 
     public void send(EmailConfig config) {
         MimeMessage message = javaMailSender.createMimeMessage();
+
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(config.getUsername());
             helper.setTo(recipients.toArray(new InternetAddress[0]));
             helper.setSubject(subject);
             helper.setText(body, true);
+
             if (attachment != null) {
                 helper.addAttachment(attachment.getName(), attachment);
             }
+
             javaMailSender.send(message);
-            logger.info("Email sent successfully");
-            reset();
+            logger.info("E-mail enviado com sucesso para {}", to);
+
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new EmailSendingException("Erro ao enviar e-mail", e);
+        } finally {
+            reset(); // limpa estado após envio
         }
     }
 
@@ -88,15 +89,14 @@ public class EmailSender {
         this.attachment = null;
     }
 
-    private List<InternetAddress> getRecipients(String to) throws AddressException {
-        String toWithoutSpaces = to.replace(" ", "");
-        StringTokenizer tokenizer = new StringTokenizer(toWithoutSpaces, ";");
-        List<InternetAddress> recipientsList = new ArrayList<>();
-        while (tokenizer.hasMoreTokens()) {
-            String recipient = tokenizer.nextToken();
-            recipientsList.add(new InternetAddress(recipient));
-        }
-        return recipientsList;
-    }
+    private List<InternetAddress> parseRecipients(String to) throws AddressException {
+        String sanitized = to.replace(" ", "");
+        StringTokenizer tokenizer = new StringTokenizer(sanitized, ";");
+        List<InternetAddress> result = new ArrayList<>();
 
+        while (tokenizer.hasMoreTokens()) {
+            result.add(new InternetAddress(tokenizer.nextToken()));
+        }
+        return result;
+    }
 }

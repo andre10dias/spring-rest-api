@@ -36,4 +36,12 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmailSendingException.class)
+    public final ResponseEntity<ExceptionResponse> handleEmailSendingException(
+            EmailSendingException ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                LocalDate.now(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY); // 422
+    }
+
 }
