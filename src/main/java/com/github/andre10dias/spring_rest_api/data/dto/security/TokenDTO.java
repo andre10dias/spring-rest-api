@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,8 +13,8 @@ public class TokenDTO {
 
     private String username;
     private Boolean authenticated;
-    LocalDateTime created;
-    LocalDateTime expiration;
+    Instant created;
+    Instant expiration;
     private String accessToken;
     private String refreshToken;
 

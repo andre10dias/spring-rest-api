@@ -19,7 +19,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -45,8 +44,8 @@ public class JwtTokenProvider {
     }
 
     public TokenDTO createAccessToken(String username, List<String> roles) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime validity = now.plusMinutes(expiration);
+        Instant now = Instant.now();
+        Instant validity = now.plusMillis(expiration); // Expiração em milisegundos.
         String accessToken = getAccessToken(username, roles, now, validity);
         String refreshToken = getRefreshToken(username, roles, now);
         return new TokenDTO(
@@ -59,7 +58,7 @@ public class JwtTokenProvider {
         );
     }
     
-    private String getAccessToken(String username, List<String> roles, LocalDateTime now, LocalDateTime validity) {
+    private String getAccessToken(String username, List<String> roles, Instant now, Instant validity) {
         // Retorna a URL da aplicação de onde o token será criado
         String issuerUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         return JWT.create()
@@ -71,11 +70,11 @@ public class JwtTokenProvider {
                 .sign(algorithm);
     }
     
-    private String getRefreshToken(String username, List<String> roles, LocalDateTime now) {
+    private String getRefreshToken(String username, List<String> roles, Instant now) {
         return JWT.create()
                 .withSubject(username)
                 .withIssuedAt(Instant.from(now))
-                .withExpiresAt(Instant.from(now.plusMinutes(expiration * 3)))
+                .withExpiresAt(now.plusMillis(expiration))
                 .withClaim("roles", roles)
                 .sign(algorithm);
     }

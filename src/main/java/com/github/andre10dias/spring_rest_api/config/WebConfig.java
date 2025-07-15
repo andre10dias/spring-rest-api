@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     @Value("${cors.originPatterns}")
-    private String corsOriginPatterns = "";
+    private String corsOriginPatterns;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
