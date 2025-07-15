@@ -5,7 +5,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.andre10dias.spring_rest_api.data.dto.security.TokenDTO;
+import com.github.andre10dias.spring_rest_api.exception.InvalidJwtAuthenticationException;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -82,6 +85,23 @@ public class JwtTokenProvider {
         String username = decodedJWT.getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring("Bearer ".length());
+        }
+        throw new InvalidJwtAuthenticationException("Invalid Token");
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            DecodedJWT decodedJWT = decodedToken(token);
+            return !decodedJWT.getExpiresAt().before(Date.from(Instant.now()));
+        } catch (Exception e) {
+            throw new InvalidJwtAuthenticationException("Expired or invalid Token");
+        }
     }
 
     private DecodedJWT decodedToken(String token) {
