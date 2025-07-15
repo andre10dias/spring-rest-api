@@ -64,5 +64,5 @@ public class User implements UserDetails, Serializable {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.permissions;
     }
-    
+
 }

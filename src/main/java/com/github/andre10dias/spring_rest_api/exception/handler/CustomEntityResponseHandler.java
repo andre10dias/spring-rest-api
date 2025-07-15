@@ -38,10 +38,18 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler(EmailSendingException.class)
     public final ResponseEntity<ExceptionResponse> handleEmailSendingException(
-            EmailSendingException ex, WebRequest request) {
+            Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 LocalDate.now(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY); // 422
+    }
+
+    @ExceptionHandler(InvalidJwtAuthenticationException.class)
+    public final ResponseEntity<ExceptionResponse> handleInvalidJwtAuthenticationException(
+            Exception ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                LocalDate.now(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN); // 422
     }
 
 }
