@@ -61,12 +61,12 @@ public class JwtTokenProvider {
     
     private String getAccessToken(String username, List<String> roles, LocalDateTime now, LocalDateTime validity) {
         // Retorna a URL da aplicação de onde o token será criado
-        String inssuerUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String issuerUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         return JWT.create()
                 .withSubject(username)
                 .withIssuedAt(Instant.from(now))
                 .withExpiresAt(Instant.from(validity))
-                .withIssuer(inssuerUrl)
+                .withIssuer(issuerUrl)
                 .withClaim("roles", roles)
                 .sign(algorithm);
     }
@@ -75,7 +75,7 @@ public class JwtTokenProvider {
         return JWT.create()
                 .withSubject(username)
                 .withIssuedAt(Instant.from(now))
-                .withExpiresAt(Instant.from(now.plusMinutes(expiration)))
+                .withExpiresAt(Instant.from(now.plusMinutes(expiration * 3)))
                 .withClaim("roles", roles)
                 .sign(algorithm);
     }
@@ -92,21 +92,24 @@ public class JwtTokenProvider {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring("Bearer ".length());
         }
-        throw new InvalidJwtAuthenticationException("Invalid Token");
+        return null;
     }
 
     public boolean validateToken(String token) {
+        String message = "Expired or invalid Token";
         try {
+            if (token == null || token.isEmpty()) {
+                throw new InvalidJwtAuthenticationException(message);
+            }
             DecodedJWT decodedJWT = decodedToken(token);
             return !decodedJWT.getExpiresAt().before(Date.from(Instant.now()));
         } catch (Exception e) {
-            throw new InvalidJwtAuthenticationException("Expired or invalid Token");
+            throw new InvalidJwtAuthenticationException(message);
         }
     }
 
     private DecodedJWT decodedToken(String token) {
-        Algorithm algorith = Algorithm.HMAC256(secret);
-        JWTVerifier verifier = JWT.require(algorith).build();
+        JWTVerifier verifier = JWT.require(algorithm).build(); // usa a instância já criada
         return verifier.verify(token);
     }
 
