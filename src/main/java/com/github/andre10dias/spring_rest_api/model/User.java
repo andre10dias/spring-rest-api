@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "user")
-public class User implements UserDetails, Serializable {
+public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -58,11 +58,6 @@ public class User implements UserDetails, Serializable {
         List<String> roles = new ArrayList<>();
         permissions.forEach(permission -> roles.add(permission.getDescription()));
         return roles;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.permissions;
     }
 
 }
