@@ -5,15 +5,13 @@ import com.github.andre10dias.spring_rest_api.data.dto.security.TokenDTO;
 import com.github.andre10dias.spring_rest_api.exception.InvalidCredentialsException;
 import com.github.andre10dias.spring_rest_api.repository.UserRepository;
 import com.github.andre10dias.spring_rest_api.security.jwt.JwtTokenProvider;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -23,8 +21,8 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
-    @Transactional
-    public ResponseEntity<TokenDTO> signIn(AccountCredentialsDTO credentials) {
+    @Transactional(readOnly = true)
+    public TokenDTO signIn(AccountCredentialsDTO credentials) {
         var user = userRepository.findByUsername(credentials.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
@@ -38,10 +36,14 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid username or password.");
         }
 
-        var token = jwtTokenProvider.createAccessToken(
+        return jwtTokenProvider.createAccessToken(
                 credentials.getUsername(), user.getRoles()
         );
-        return ResponseEntity.ok(token);
+    }
+
+    @Transactional(readOnly = true)
+    public TokenDTO refreshToken(String refreshToken) {
+        return jwtTokenProvider.refreshToken(refreshToken);
     }
 
 }

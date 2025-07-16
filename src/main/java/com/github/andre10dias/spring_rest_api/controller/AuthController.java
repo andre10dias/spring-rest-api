@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,7 +23,17 @@ public class AuthController implements AuthControllerDocs {
     @Override
     public ResponseEntity<TokenDTO> signIn(@RequestBody AccountCredentialsDTO credentials) {
         if (!credentialsValid(credentials)) throw new InvalidCredentialsException("Username and password must not be empty.");
-        return authService.signIn(credentials);
+        TokenDTO token = authService.signIn(credentials);
+        return ResponseEntity.ok(token);
+    }
+
+    @PutMapping("/refresh")
+    @Override
+    public ResponseEntity<TokenDTO> refreshToken(@RequestHeader("Authorization") String refreshToken) {
+        if (!StringUtils.hasText(refreshToken))
+            throw new InvalidCredentialsException("Refresh token must not be empty.");
+        TokenDTO token = authService.refreshToken(refreshToken);
+        return ResponseEntity.ok(token);
     }
 
     private boolean credentialsValid(AccountCredentialsDTO credentials) {
