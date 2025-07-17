@@ -53,8 +53,8 @@ spring:
 
 logging:
   level:
-    #root: WARN
-    com.github.andre10dias.spring_rest_api: DEBUG
+    root: DEBUG
+    #com.github.andre10dias.spring_rest_api: DEBUG
 
 springdoc:
   paths-to-match:

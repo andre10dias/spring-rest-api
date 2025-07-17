@@ -50,10 +50,10 @@ spring:
 
 logging:
   level:
-    #root: WARN
+    root: DEBUG
     #net.sf.jasperreports.engine.*: TRACE
     #com.github.andre10dias.spring_rest_api: DEBUG
-    org.springframework.security: DEBUG
+    #org.springframework.security: DEBUG
 
 springdoc:
   paths-to-match:

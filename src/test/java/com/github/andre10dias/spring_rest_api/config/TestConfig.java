@@ -8,4 +8,6 @@ public interface TestConfig {
     String ANGULAR_ORIGIN_VALUE = "http://localhost:4200";
     String WRONG_ORIGIN_VALUE = "http://localhost:3001";
     String LOCAL_ORIGIN_VALUE = "http://localhost:8080";
+
+    String BEARER_TOKEN_PREFIX = "Bearer ";
 }
