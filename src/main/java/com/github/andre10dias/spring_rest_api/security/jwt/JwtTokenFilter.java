@@ -6,26 +6,20 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 
+@Component
 @RequiredArgsConstructor
-@EnableWebSecurity
-@Configuration
 public class JwtTokenFilter extends GenericFilterBean {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenFilter.class);
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -42,39 +36,9 @@ public class JwtTokenFilter extends GenericFilterBean {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
-            // Loga o erro e continua a cadeia sem autenticar
-            String errorMessage = "JWT authentication failed: " + ex.getMessage();
-            logger.warn(errorMessage);
+            logger.warn("JWT authentication failed: {}", ex.getMessage());
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
-
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
-
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        JwtTokenFilter jwtTokenFilter = new JwtTokenFilter(jwtTokenProvider);
-        return http
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/v1/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
-                        ).permitAll()
-                        .requestMatchers("/api/users/v1/**").denyAll()
-                        .anyRequest().authenticated()
-                )
-                .cors(cors -> {})
-                .build();
-    }
-
 }

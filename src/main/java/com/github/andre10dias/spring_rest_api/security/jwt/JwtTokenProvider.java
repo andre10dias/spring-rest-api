@@ -11,6 +11,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.andre10dias.spring_rest_api.data.dto.security.TokenDTO;
 import com.github.andre10dias.spring_rest_api.exception.InvalidCredentialsException;
 import com.github.andre10dias.spring_rest_api.exception.InvalidJwtAuthenticationException;
+import com.github.andre10dias.spring_rest_api.service.CustomUserDetailsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class JwtTokenProvider {
     private static final String BEARER = "Bearer ";
     private static final String ROLES = "roles";
 
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
     Algorithm algorithm;
 

@@ -4,7 +4,6 @@ import com.github.andre10dias.spring_rest_api.controller.docs.FileControllerDocs
 import com.github.andre10dias.spring_rest_api.data.dto.v1.UploadFileResponseDTO;
 import com.github.andre10dias.spring_rest_api.service.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

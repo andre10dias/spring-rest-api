@@ -52,7 +52,8 @@ logging:
   level:
     #root: WARN
     #net.sf.jasperreports.engine.*: TRACE
-    com.github.andre10dias.spring_rest_api: DEBUG
+    #com.github.andre10dias.spring_rest_api: DEBUG
+    org.springframework.security: DEBUG
 
 springdoc:
   paths-to-match:
