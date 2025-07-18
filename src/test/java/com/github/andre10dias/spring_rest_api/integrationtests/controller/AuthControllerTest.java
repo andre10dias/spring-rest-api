@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -68,5 +68,23 @@ class AuthControllerTest extends AbstractIntegrationTest {
         assertNotNull(tokenDto.getAccessToken());
         assertNotNull(tokenDto.getRefreshToken());
     }
+
+    @Test
+    @Order(0)
+    void testLoginWithInvalidPassword() {
+        AccountCredentialsDTO credentialsDto =
+                new AccountCredentialsDTO("leandro", "senhaErrada");
+
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .port(TestConfig.SERVER_PORT)
+                .basePath("/api/person/v1")
+                .body(credentialsDto)
+                .when()
+                .post("/signin")
+                .then()
+                .statusCode(403);
+    }
+
 
 }

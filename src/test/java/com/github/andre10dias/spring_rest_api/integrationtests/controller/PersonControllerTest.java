@@ -11,14 +11,18 @@ import com.github.andre10dias.spring_rest_api.config.TestConfig;
 import com.github.andre10dias.spring_rest_api.data.dto.v2.PersonDTOv2;
 import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.dto.PersonDTO;
+import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.dto.security.AccountCredentialsDTO;
+import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.dto.security.TokenDTO;
 import com.github.andre10dias.spring_rest_api.integrationtests.testcontainers.dto.wrapper.WrapperPersonDTO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
@@ -34,6 +38,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     private static RequestSpecification specification;
     private static ObjectMapper objectMapper;
     private static PersonDTO personDto;
+    private static TokenDTO tokenDto;
 
     @BeforeAll // Executed before all tests
     static void setUp() {
@@ -51,6 +56,122 @@ class PersonControllerTest extends AbstractIntegrationTest {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         personDto = new PersonDTO();
+        tokenDto = new TokenDTO();
+    }
+
+    @Test
+    @Order(0)
+//    @Disabled
+    void signIn() {
+        AccountCredentialsDTO credentialsDto =
+                new AccountCredentialsDTO("leandro", "admin123");
+        tokenDto = given()
+                .basePath("/api/auth/v1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .port(TestConfig.SERVER_PORT)
+                .body(credentialsDto)
+                .when()
+                .post("/signin")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(TokenDTO.class);
+
+        assertNotNull(tokenDto.getAccessToken());
+        assertNotNull(tokenDto.getRefreshToken());
+    }
+
+    @Test
+    @Order(1)
+    void create() throws JsonProcessingException {
+        mockPerson();
+        specification = createSpec(TestConfig.ANGULAR_ORIGIN_VALUE);
+
+        var content = given(specification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(personDto)
+                .when()
+                .post()
+                .then()
+                .statusCode(200)
+                .extract()
+                .body().asString();
+
+        personDto = objectMapper.readValue(content, PersonDTO.class);
+
+        assertNotNull(personDto.getId());
+        assertNotNull(personDto.getFirstName());
+        assertNotNull(personDto.getLastName());
+        assertNotNull(personDto.getAddress());
+        assertNotNull(personDto.getGender());
+
+        assertTrue(personDto.getId() > 0);
+
+        assertEquals("First Name Test", personDto.getFirstName());
+        assertEquals("Last Name Test", personDto.getLastName());
+        assertEquals("Address Test", personDto.getAddress());
+        assertEquals("Male", personDto.getGender());
+    }
+
+    @Test
+    @Order(2)
+    void createWithWrongOrigin() {
+        mockPerson();
+        specification = createSpec(TestConfig.WRONG_ORIGIN_VALUE);
+
+        var content = given(specification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(personDto)
+                .when()
+                .post()
+                .then()
+                .statusCode(403)
+                .extract()
+                .body().asString();
+
+        assertEquals("Invalid CORS request", content);
+    }
+
+    @Test
+    @Order(3)
+    void findById() throws JsonProcessingException {
+        specification = createSpec(TestConfig.LOCAL_ORIGIN_VALUE);
+
+        var content = given(specification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("id", personDto.getId())
+                .when()
+                .get("{id}")
+                .then()
+                .statusCode(200)
+                .extract()
+                .body().asString();
+
+        personDto = objectMapper.readValue(content, PersonDTO.class);
+
+        assertEquals("First Name Test", personDto.getFirstName());
+        assertEquals("Last Name Test", personDto.getLastName());
+        assertEquals("Address Test", personDto.getAddress());
+        assertEquals("Male", personDto.getGender());
+    }
+
+    @Test
+    @Order(4)
+    void findByIdWithWrongOrigin() {
+        specification = createSpec(TestConfig.WRONG_ORIGIN_VALUE);
+
+        var content = given(specification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("id", personDto.getId())
+                .when()
+                .get("{id}")
+                .then()
+                .statusCode(403)
+                .extract()
+                .body().asString();
+
+        assertEquals("Invalid CORS request", content);
     }
 
     @Test
@@ -160,98 +281,6 @@ class PersonControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(3)
-    void findById() throws JsonProcessingException {
-        specification = createSpec(TestConfig.LOCAL_ORIGIN_VALUE);
-
-        var content = given(specification)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("id", personDto.getId())
-                .when()
-                .get("{id}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .body().asString();
-
-        personDto = objectMapper.readValue(content, PersonDTO.class);
-
-        assertEquals("First Name Test", personDto.getFirstName());
-        assertEquals("Last Name Test", personDto.getLastName());
-        assertEquals("Address Test", personDto.getAddress());
-        assertEquals("Male", personDto.getGender());
-    }
-
-    @Test
-    @Order(4)
-    void findByIdWithWrongOrigin() {
-        specification = createSpec(TestConfig.WRONG_ORIGIN_VALUE);
-
-        var content = given(specification)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("id", personDto.getId())
-                .when()
-                .get("{id}")
-                .then()
-                .statusCode(403)
-                .extract()
-                .body().asString();
-
-        assertEquals("Invalid CORS request", content);
-    }
-
-    @Test
-    @Order(1)
-    void create() throws JsonProcessingException {
-        mockPerson();
-        specification = createSpec(TestConfig.ANGULAR_ORIGIN_VALUE);
-
-        var content = given(specification)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(personDto)
-                .when()
-                .post()
-                .then()
-                .statusCode(200)
-                .extract()
-                .body().asString();
-
-        personDto = objectMapper.readValue(content, PersonDTO.class);
-
-        assertNotNull(personDto.getId());
-        assertNotNull(personDto.getFirstName());
-        assertNotNull(personDto.getLastName());
-        assertNotNull(personDto.getAddress());
-        assertNotNull(personDto.getGender());
-
-        assertTrue(personDto.getId() > 0);
-
-        assertEquals("First Name Test", personDto.getFirstName());
-        assertEquals("Last Name Test", personDto.getLastName());
-        assertEquals("Address Test", personDto.getAddress());
-        assertEquals("Male", personDto.getGender());
-    }
-
-    @Test
-    @Order(2)
-    void createWithWrongOrigin() {
-        mockPerson();
-        specification = createSpec(TestConfig.WRONG_ORIGIN_VALUE);
-
-        var content = given(specification)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(personDto)
-                .when()
-                .post()
-                .then()
-                .statusCode(403)
-                .extract()
-                .body().asString();
-
-        assertEquals("Invalid CORS request", content);
-    }
-
-    @Test
     @Order(7)
     void update() throws JsonProcessingException {
         personDto.setFirstName("Updated Name");
@@ -286,6 +315,38 @@ class PersonControllerTest extends AbstractIntegrationTest {
 
     @Test
     @Order(9)
+    void testAccessWithInvalidToken() {
+        given()
+                .header(
+                        TestConfig.AUTHORIZATION_HEADER,
+                        TestConfig.INVALID_TOKEN
+                )
+                .contentType(ContentType.JSON)
+                .port(TestConfig.SERVER_PORT)
+                .basePath("/api/person/v1")
+                .when()
+                .get()
+                .then()
+                .statusCode(403); //Forbidden
+    }
+
+
+    @Test
+    @Order(10)
+    void testAccessProtectedEndpointWithoutToken() {
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .port(TestConfig.SERVER_PORT)
+                .basePath("/api/person/v1")
+                .when()
+                .get()
+                .then()
+                .statusCode(403);
+    }
+
+
+    @Test
+    @Order(11)
     void CreateV2() throws JsonProcessingException {
         PersonDTOv2 personDtoV2 = new PersonDTOv2();
         personDtoV2.setFirstName("First Name Test");
@@ -333,8 +394,16 @@ class PersonControllerTest extends AbstractIntegrationTest {
     }
 
     private static RequestSpecification createSpec(String origin) {
+        if (tokenDto == null || tokenDto.getAccessToken() == null) {
+            throw new IllegalStateException("Token de acesso não foi inicializado. Verifique AuthHelper.signInDefaultUser().");
+        }
+
         return new RequestSpecBuilder()
                 .addHeader(TestConfig.ORIGIN_HEADER, origin)
+                .addHeader(
+                        TestConfig.AUTHORIZATION_HEADER,
+                        TestConfig.BEARER_TOKEN_PREFIX + tokenDto.getAccessToken()
+                )
                 .setBasePath("/api/people/v1")
                 .setPort(TestConfig.SERVER_PORT)
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))

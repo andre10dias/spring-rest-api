@@ -10,4 +10,5 @@ public interface TestConfig {
     String LOCAL_ORIGIN_VALUE = "http://localhost:8080";
 
     String BEARER_TOKEN_PREFIX = "Bearer ";
+    String INVALID_TOKEN = "Bearer token-invalido-ou-expirado";
 }
