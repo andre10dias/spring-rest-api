@@ -20,8 +20,8 @@ email:
 security:
   jwt:
     token:
-      secret-key: ${JWT_SECRET_KEY}
-      expire-length: ${JWT_EXPIRATION_TIME}
+      secret-key: ${JWT_SECRET_KEY:53cr37}
+      expire-length: ${JWT_EXPIRATION_TIME:3600000}
 
 spring:
   application:
