@@ -6,36 +6,34 @@ on:
       - "main"
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Login to Docker Hub
-      uses: actions/checkout@v4
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: workspace
 
-    - name: Setup Java 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin' # See 'Supported distributions' for available options
-        cache: maven
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
 
-    - name: Build Application .jar
-      working-directory: workspace/spring-rest-api  # diretório onde o pom.xml se encontra, partindo do diretório do docker-compose.yml
-      run: mvn clean package
+      - name: Build Application .jar
+        working-directory: ./workspace/spring-rest-api
+        run: mvn clean package
 
-    - name: Docker Compose Build
-      working-directory: workspace    # diretório onde o docker-compose.yml se encontra
-      run: docker compose build
+      - name: Docker Compose Build
+        working-directory: ./workspace
+        run: docker compose build
 
-    - name: Push to Docker Hub Hub Container Registry
-      run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
-        docker tag spring-rest-api:latest ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
-        docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
+      - name: Push to Docker Hub
+        working-directory: ./workspace
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          docker tag spring-rest-api:latest ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
