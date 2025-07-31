@@ -26,11 +26,11 @@ jobs:
         cache: maven
 
     - name: Build Application .jar
-      working-directory: ./spring-rest-api  # diretório onde o pom.xml se encontra, partindo do diretório do docker-compose.yml
+      working-directory: workspace/spring-rest-api  # diretório onde o pom.xml se encontra, partindo do diretório do docker-compose.yml
       run: mvn clean package
 
     - name: Docker Compose Build
-      working-directory: ./    # diretório onde o docker-compose.yml se encontra
+      working-directory: workspace    # diretório onde o docker-compose.yml se encontra
       run: docker compose build
 
     - name: Push to Docker Hub Hub Container Registry
