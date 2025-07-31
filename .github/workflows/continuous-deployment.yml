@@ -18,8 +18,24 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
-    - uses: actions/setup-java@v4
+    - name: Setup Java 21
+      uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin' # See 'Supported distributions' for available options
         cache: maven
+
+    - name: Build Application .jar
+      working-directory: ./spring-rest-api  # diretório onde o pom.xml se encontra, partindo do diretório do docker-compose.yml
+      run: mvn clean package
+
+    - name: Docker Compose Build
+      working-directory: ./    # diretório onde o docker-compose.yml se encontra
+      run: docker compose build
+
+    - name: Push to Docker Hub Hub Container Registry
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
+        docker tag spring-rest-api:latest ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
