@@ -5,7 +5,7 @@ cors:
   originPatterns: http://localhost:4200,http://localhost:3000,http://localhost:8080
 
 file:
-  upload-dir: C:/Udemy/file_temp
+  upload-dir: C:/Udemy/Aprenda Spring Swagger Docker Kubernetes e mais/workspace/file_temp
 
 reports:
   path: "/templates/reports"

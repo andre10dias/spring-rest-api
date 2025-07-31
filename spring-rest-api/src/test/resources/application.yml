@@ -9,7 +9,8 @@ cors:
 
 file:
   upload-dir: /home/runner/work/spring-rest-api/file_temp  #/home/runner/work/<nome-do-repositorio>/file_temp
-  #upload-dir: C:/Udemy/file_temp
+  #upload-dir: file:
+  #  upload-dir: C:/Udemy/Aprenda Spring Swagger Docker Kubernetes e mais/workspace/file_temp
 
 reports:
   path: "/templates/reports"
