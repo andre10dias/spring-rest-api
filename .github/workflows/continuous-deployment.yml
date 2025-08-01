@@ -31,6 +31,6 @@ jobs:
       - name: Push to Docker Hub
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
-          docker tag spring-rest-api:latest ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:latest ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
           docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/spring-rest-api:${{ github.run_id }}
