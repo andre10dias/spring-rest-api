@@ -24,7 +24,7 @@ spring:
   application:
     name: spring-rest-api
   profiles:
-    active: default
+    active: aws
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/spring_rest_api?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC

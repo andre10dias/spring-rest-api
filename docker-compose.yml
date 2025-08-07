@@ -23,7 +23,7 @@ services:
 
   spring-rest-api:
     image: andre10dias/spring-rest-api
-    build:
+    build:     # Remova o build para baixar a imagem do seu repositório no docker hub, caso já exista
       context: ./spring-rest-api
       dockerfile: Dockerfile
     container_name: spring_rest_api_app
@@ -43,6 +43,21 @@ services:
         condition: service_healthy
     networks:
       - spring_rest_api_network
+
+  portainer:   # Monitoramento dos containers
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - "9000:9000"
+    networks:
+      - spring_rest_api_network
+
+volumes:
+  portainer_data:
 
 networks:
   spring_rest_api_network:
